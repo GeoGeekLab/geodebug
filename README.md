@@ -27,8 +27,6 @@ stable `GEOxxx` diagnostics with explicit evidence.
 
 No LLM in the core. No silent CRS guessing. No automatic "fix everything."
 
-> [!NOTE]
-> GeoDebug prefers `UNKNOWN` to an unsupported conclusion.
 
 ## What it catches
 
