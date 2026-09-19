@@ -31,7 +31,11 @@ class Evaluator:
         not_applicable_rules = 0
 
         for rule in self._registry.all():
+            if not self._policy.enables(rule.spec):
+                continue
             for rule_context in _contexts_for_rule(rule, context):
+                if self._policy.suppresses(rule.spec, rule_context):
+                    continue
                 result = rule.evaluate(rule_context)
                 if result.state is RuleState.PASS:
                     passed_rules += 1

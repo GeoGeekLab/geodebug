@@ -38,7 +38,7 @@ Run dataset checks:
 
 ```bash
 geodebug check roads.geojson
-geodebug check roads.geojson --deep
+geodebug check landcover.tif --deep
 ```
 
 Compare two datasets:
@@ -47,29 +47,68 @@ Compare two datasets:
 geodebug compare dem-a.tif dem-b.tif
 ```
 
+Check an operation before execution:
+
+```bash
+geodebug preflight roads.geojson --operation buffer --distance 500
+geodebug preflight parcels.geojson --operation area
+```
+
 Emit the canonical JSON report:
 
 ```bash
 geodebug check roads.geojson --format json
 ```
 
-The default path is metadata-first. Full vector geometry scans are opt-in with `--deep`.
+The default path is metadata-first. Full geometry or raster scans are opt-in with `--deep`.
+
+## Project policy
+
+GeoDebug searches the current directory and its parents for `.geodebug.toml`. An explicit
+config path can be supplied with `--config`.
+
+```toml
+profile = "default"
+fail_on = "error"
+
+[rules]
+disable = []
+
+[rules.severity]
+GEO101 = "error"
+
+[[suppress]]
+rule = "GEO103"
+path = "legacy/*.geojson"
+reason = "Known upstream coordinate convention"
+expires = 2027-01-01
+```
+
+Profiles do not change rule truth values. `strict` promotes warnings to errors;
+`exploratory` demotes warnings to notes. Explicit severity overrides take precedence.
+Suppressions require a reason and may expire.
 
 ## Built-in rules
 
-The v0.1 usable core currently includes:
+The current v0.1 rule set includes:
 
 - `GEO101` — missing CRS
+- `GEO103` — geographic coordinate out of range
+- `GEO105` — projected data outside CRS area of use
 - `GEO201` — invalid geometry
+- `GEO301` — invalid or singular raster transform
+- `GEO304` — NoData value conflicts with the validity mask
 - `GEO402` — no spatial overlap
 - `GEO404` — raster grid misalignment
 - `GEO501` — metric buffer on a geographic CRS
+- `GEO502` — planar area on a geographic CRS
+- `GEO503` — planar distance or length on a geographic CRS
 
 Inspect rule contracts with:
 
 ```bash
 geodebug rules list
-geodebug rules show GEO404
+geodebug rules show GEO304
 ```
 
 ## Architecture
@@ -94,3 +133,6 @@ ruff check .
 mypy src/geodebug
 pytest
 ```
+
+Golden rule cases live in `tests/golden/cases.toml`. Each case declares both expected
+diagnostics and rules that must not be reported.

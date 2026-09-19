@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from collections.abc import Mapping
 from typing import Any
 
 from geodebug.adapters.base import InspectOptions
@@ -9,6 +10,7 @@ from geodebug.engine.evaluator import Evaluator
 from geodebug.engine.policy import Policy
 from geodebug.facts.relations import build_relation_facts
 from geodebug.models.context import EvaluationContext
+from geodebug.models.operations import OperationContext
 from geodebug.models.report import Report
 from geodebug.models.subjects import DatasetSnapshot
 
@@ -46,6 +48,26 @@ def compare(
     context = EvaluationContext(
         subjects=(left_snapshot, right_snapshot),
         facts=relation_facts,
+    )
+    return evaluate(context, policy=policy)
+
+
+def preflight(
+    target: Any,
+    *,
+    operation: str,
+    parameters: Mapping[str, Any] | None = None,
+    deep: bool = False,
+    policy: Policy | None = None,
+) -> Report:
+    """Evaluate operation-aware diagnostics before an operation is executed."""
+    snapshot = inspect(target, deep=deep)
+    context = EvaluationContext(
+        subjects=(snapshot,),
+        operation=OperationContext(
+            name=operation,
+            parameters=parameters or {},
+        ),
     )
     return evaluate(context, policy=policy)
 

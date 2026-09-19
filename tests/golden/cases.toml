@@ -1,0 +1,20 @@
+[[case]]
+id = "clean-point"
+fixture = "clean-point"
+deep = false
+expected = []
+must_not_report = ["GEO101", "GEO103", "GEO105", "GEO201"]
+
+[[case]]
+id = "invalid-latitude"
+fixture = "invalid-latitude"
+deep = false
+expected = ["GEO103"]
+must_not_report = ["GEO101", "GEO105", "GEO201"]
+
+[[case]]
+id = "invalid-bowtie"
+fixture = "invalid-bowtie"
+deep = true
+expected = ["GEO201"]
+must_not_report = ["GEO101", "GEO103", "GEO105"]
