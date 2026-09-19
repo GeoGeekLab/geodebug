@@ -18,7 +18,6 @@ from geodebug.models.enums import FactState, SubjectKind
 from geodebug.models.facts import FactProvenance, FactRecord, FactStore
 from geodebug.models.subjects import DatasetSnapshot
 
-
 Bounds = tuple[float, float, float, float]
 Pair = tuple[float, float]
 Transform6 = tuple[float, float, float, float, float, float]
