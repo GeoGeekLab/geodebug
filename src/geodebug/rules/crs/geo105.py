@@ -6,6 +6,7 @@ from typing import cast
 from geodebug.facts.keys import (
     CRS_AREA_OF_USE_BOUNDS,
     CRS_AREA_OF_USE_NAME,
+    CRS_KIND,
     CRS_WKT,
     SPATIAL_BOUNDS,
 )
@@ -33,7 +34,7 @@ class CRSAreaOfUseRule:
         scope=RuleScope.DATASET,
         default_severity=Severity.WARNING,
         certainty=Certainty.DETERMINISTIC,
-        requires=(CRS_WKT, CRS_AREA_OF_USE_BOUNDS, SPATIAL_BOUNDS),
+        requires=(CRS_KIND, CRS_WKT, CRS_AREA_OF_USE_BOUNDS, SPATIAL_BOUNDS),
         cost=CostClass.METADATA,
         fix_safety=FixSafety.REVIEW_REQUIRED,
     )
@@ -41,6 +42,12 @@ class CRSAreaOfUseRule:
     def evaluate(self, context: EvaluationContext) -> RuleResult:
         subject = context.primary
         if subject is None:
+            return RuleResult.not_applicable()
+
+        kind = _known(subject.facts.get(CRS_KIND))
+        if kind is None:
+            return RuleResult.unknown("CRS type could not be established.")
+        if str(kind).casefold() != "projected":
             return RuleResult.not_applicable()
 
         wkt = _known(subject.facts.get(CRS_WKT))
@@ -51,7 +58,9 @@ class CRSAreaOfUseRule:
 
         geographic = transform_bounds(observed, wkt)
         if geographic is None:
-            return RuleResult.unknown("Dataset bounds could not be transformed to geographic coordinates.")
+            return RuleResult.unknown(
+                "Dataset bounds could not be transformed to geographic coordinates."
+            )
         if geographic_bounds_overlap(geographic, area):
             return RuleResult.passed()
 

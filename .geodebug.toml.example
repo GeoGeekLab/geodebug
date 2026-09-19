@@ -1,0 +1,18 @@
+# GeoDebug project policy.
+profile = "default"
+fail_on = "error"
+
+[rules]
+disable = []
+
+# Explicit severity overrides take precedence over the selected profile.
+[rules.severity]
+# GEO101 = "error"
+
+# Suppressions require an explanation. An optional expiry date keeps temporary
+# exceptions from becoming permanent policy.
+# [[suppress]]
+# rule = "GEO103"
+# path = "legacy/*.geojson"
+# reason = "Known upstream coordinate convention"
+# expires = 2027-01-01
