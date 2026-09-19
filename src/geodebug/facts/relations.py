@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import math
-from typing import TypeGuard
 
 from pyproj import CRS, Transformer
 from pyproj.exceptions import CRSError, ProjError
