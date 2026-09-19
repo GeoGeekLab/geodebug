@@ -10,20 +10,21 @@ stable integration boundary for CLI, CI, and future agent tooling.
 
 ## Install
 
-Core GeoJSON support:
+PyPI publication is not enabled for 0.1.0. Install the tagged release directly
+from GitHub:
 
 ```bash
-pip install geodebug
+pip install "geodebug @ git+https://github.com/GeoGeekLab/geodebug.git@v0.1.0"
 ```
 
-Optional format support:
+Optional format support can be installed from the same tag:
 
 ```bash
-pip install "geodebug[vector]"     # GPKG, Shapefile, FlatGeobuf
-pip install "geodebug[raster]"     # GeoTIFF, COG, VRT
-pip install "geodebug[parquet]"    # GeoParquet
-pip install "geodebug[geopandas]"  # in-memory GeoDataFrame
-pip install "geodebug[all]"
+pip install "geodebug[vector] @ git+https://github.com/GeoGeekLab/geodebug.git@v0.1.0"
+pip install "geodebug[raster] @ git+https://github.com/GeoGeekLab/geodebug.git@v0.1.0"
+pip install "geodebug[parquet] @ git+https://github.com/GeoGeekLab/geodebug.git@v0.1.0"
+pip install "geodebug[geopandas] @ git+https://github.com/GeoGeekLab/geodebug.git@v0.1.0"
+pip install "geodebug[all] @ git+https://github.com/GeoGeekLab/geodebug.git@v0.1.0"
 ```
 
 ## Usage
