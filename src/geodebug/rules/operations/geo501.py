@@ -68,6 +68,9 @@ class AngularCRSBufferRule:
             suggestion=SuggestedAction(
                 action="project-before-buffer",
                 safety=FixSafety.REVIEW_REQUIRED,
-                detail="Use a suitable projected CRS when the buffer distance is intended to be linear.",
+                detail=(
+                    "Use a suitable projected CRS when the buffer distance "
+                    "is intended to be linear."
+                ),
             ),
         )

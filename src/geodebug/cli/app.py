@@ -26,7 +26,12 @@ def _version_callback(value: bool) -> None:
 def root(
     version: Annotated[
         bool,
-        typer.Option("--version", callback=_version_callback, is_eager=True, help="Show the version."),
+        typer.Option(
+            "--version",
+            callback=_version_callback,
+            is_eager=True,
+            help="Show the version.",
+        ),
     ] = False,
 ) -> None:
     """Deterministic diagnostics for geospatial data and workflows."""

@@ -1,7 +1,8 @@
 from __future__ import annotations
 
+from collections.abc import Iterable, Iterator
 from dataclasses import dataclass
-from typing import Any, Iterable, Iterator
+from typing import Any
 
 from geodebug.models.enums import Certainty, FactState
 
