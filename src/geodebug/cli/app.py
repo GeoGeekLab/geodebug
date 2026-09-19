@@ -13,7 +13,11 @@ from geodebug.adapters.base import AdapterError
 from geodebug.api import check as check_target
 from geodebug.api import compare as compare_targets
 from geodebug.api import inspect as inspect_target
+from geodebug.api import preflight as preflight_target
+from geodebug.config.loader import ConfigError, load_config
+from geodebug.config.model import FailOnName, ProfileName
 from geodebug.engine.defaults import build_default_registry
+from geodebug.engine.policy import Policy
 from geodebug.models.report import Report
 from geodebug.reporters.terminal import print_report, print_snapshot
 from geodebug.version import __version__
@@ -28,12 +32,6 @@ error_console = Console(stderr=True)
 class OutputFormat(StrEnum):
     TERMINAL = "terminal"
     JSON = "json"
-
-
-class FailOn(StrEnum):
-    ERROR = "error"
-    WARNING = "warning"
-    NONE = "none"
 
 
 def _version_callback(value: bool) -> None:
@@ -60,7 +58,7 @@ def root(
 @app.command("inspect")
 def inspect_command(
     target: Path,
-    deep: Annotated[bool, typer.Option(help="Allow full geometry scans.")] = False,
+    deep: Annotated[bool, typer.Option(help="Allow full data scans.")] = False,
 ) -> None:
     """Inspect normalized facts without running diagnostic rules."""
     try:
@@ -74,48 +72,113 @@ def inspect_command(
 @app.command("check")
 def check_command(
     target: Path,
-    deep: Annotated[bool, typer.Option(help="Allow full geometry scans.")] = False,
+    deep: Annotated[bool, typer.Option(help="Allow full data scans.")] = False,
     output_format: Annotated[
         OutputFormat,
         typer.Option("--format", help="Output format."),
     ] = OutputFormat.TERMINAL,
+    config_path: Annotated[
+        Path | None,
+        typer.Option("--config", help="Path to .geodebug.toml."),
+    ] = None,
+    profile: Annotated[
+        ProfileName | None,
+        typer.Option(help="Override the configured policy profile."),
+    ] = None,
     fail_on: Annotated[
-        FailOn,
-        typer.Option(help="Diagnostic severity that fails the command."),
-    ] = FailOn.ERROR,
+        FailOnName | None,
+        typer.Option(help="Override the configured CI failure threshold."),
+    ] = None,
 ) -> None:
     """Run diagnostics against one dataset."""
     try:
-        report = check_target(target, deep=deep)
-    except AdapterError as exc:
+        policy, threshold = _runtime_policy(config_path, profile, fail_on)
+        report = check_target(target, deep=deep, policy=policy)
+    except (AdapterError, ConfigError) as exc:
         error_console.print(str(exc), style="bold red")
         raise typer.Exit(code=2) from None
     _emit_report(report, output_format)
-    raise typer.Exit(code=_exit_code(report, fail_on))
+    raise typer.Exit(code=_exit_code(report, threshold))
 
 
 @app.command("compare")
 def compare_command(
     left: Path,
     right: Path,
-    deep: Annotated[bool, typer.Option(help="Allow full geometry scans.")] = False,
+    deep: Annotated[bool, typer.Option(help="Allow full data scans.")] = False,
     output_format: Annotated[
         OutputFormat,
         typer.Option("--format", help="Output format."),
     ] = OutputFormat.TERMINAL,
+    config_path: Annotated[
+        Path | None,
+        typer.Option("--config", help="Path to .geodebug.toml."),
+    ] = None,
+    profile: Annotated[
+        ProfileName | None,
+        typer.Option(help="Override the configured policy profile."),
+    ] = None,
     fail_on: Annotated[
-        FailOn,
-        typer.Option(help="Diagnostic severity that fails the command."),
-    ] = FailOn.ERROR,
+        FailOnName | None,
+        typer.Option(help="Override the configured CI failure threshold."),
+    ] = None,
 ) -> None:
     """Run dataset and relational diagnostics against two datasets."""
     try:
-        report = compare_targets(left, right, deep=deep)
-    except AdapterError as exc:
+        policy, threshold = _runtime_policy(config_path, profile, fail_on)
+        report = compare_targets(left, right, deep=deep, policy=policy)
+    except (AdapterError, ConfigError) as exc:
         error_console.print(str(exc), style="bold red")
         raise typer.Exit(code=2) from None
     _emit_report(report, output_format)
-    raise typer.Exit(code=_exit_code(report, fail_on))
+    raise typer.Exit(code=_exit_code(report, threshold))
+
+
+@app.command("preflight")
+def preflight_command(
+    target: Path,
+    operation: Annotated[
+        str,
+        typer.Option(help="Operation name, such as buffer, area, distance, or length."),
+    ],
+    distance: Annotated[
+        float | None,
+        typer.Option(help="Distance parameter for operations that require one."),
+    ] = None,
+    deep: Annotated[bool, typer.Option(help="Allow full data scans.")] = False,
+    output_format: Annotated[
+        OutputFormat,
+        typer.Option("--format", help="Output format."),
+    ] = OutputFormat.TERMINAL,
+    config_path: Annotated[
+        Path | None,
+        typer.Option("--config", help="Path to .geodebug.toml."),
+    ] = None,
+    profile: Annotated[
+        ProfileName | None,
+        typer.Option(help="Override the configured policy profile."),
+    ] = None,
+    fail_on: Annotated[
+        FailOnName | None,
+        typer.Option(help="Override the configured CI failure threshold."),
+    ] = None,
+) -> None:
+    """Check spatial semantics before executing an operation."""
+    parameters = {"distance": distance} if distance is not None else {}
+    try:
+        policy, threshold = _runtime_policy(config_path, profile, fail_on)
+        report = preflight_target(
+            target,
+            operation=operation,
+            parameters=parameters,
+            deep=deep,
+            policy=policy,
+        )
+    except (AdapterError, ConfigError) as exc:
+        error_console.print(str(exc), style="bold red")
+        raise typer.Exit(code=2) from None
+    _emit_report(report, output_format)
+    raise typer.Exit(code=_exit_code(report, threshold))
 
 
 @rules_app.command("list")
@@ -169,6 +232,15 @@ def schema() -> None:
     )
 
 
+def _runtime_policy(
+    config_path: Path | None,
+    profile: ProfileName | None,
+    fail_on: FailOnName | None,
+) -> tuple[Policy, FailOnName]:
+    config = load_config(config_path)
+    return (config.to_policy(profile=profile), fail_on or config.fail_on)
+
+
 def _emit_report(report: Report, output_format: OutputFormat) -> None:
     if output_format is OutputFormat.JSON:
         typer.echo(report.model_dump_json(indent=2))
@@ -176,10 +248,10 @@ def _emit_report(report: Report, output_format: OutputFormat) -> None:
     print_report(report, console=console)
 
 
-def _exit_code(report: Report, fail_on: FailOn) -> int:
-    if fail_on is FailOn.NONE:
+def _exit_code(report: Report, fail_on: FailOnName) -> int:
+    if fail_on is FailOnName.NONE:
         return 0
-    if fail_on is FailOn.WARNING:
+    if fail_on is FailOnName.WARNING:
         return 1 if report.summary.errors or report.summary.warnings else 0
     return 1 if report.summary.errors else 0
 

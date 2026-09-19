@@ -47,3 +47,35 @@ def test_compare_detects_half_pixel_raster_misalignment(tmp_path) -> None:
 
     ids = [diagnostic.rule_id for diagnostic in report.diagnostics]
     assert "GEO404" in ids
+
+
+def test_deep_check_detects_nodata_mask_collision(tmp_path) -> None:
+    import numpy as np
+
+    rasterio = pytest.importorskip("rasterio")
+    from rasterio.transform import from_origin
+
+    path = tmp_path / "nodata-mask-conflict.tif"
+    data = np.ones((1, 4, 4), dtype="uint8")
+    data[0, 0, 0] = 0
+    with rasterio.open(
+        path,
+        "w",
+        driver="GTiff",
+        width=4,
+        height=4,
+        count=1,
+        dtype="uint8",
+        crs="EPSG:32648",
+        nodata=0,
+        transform=from_origin(0.0, 40.0, 10.0, 10.0),
+    ) as dataset:
+        dataset.write(data)
+        dataset.write_mask(np.full((4, 4), 255, dtype="uint8"))
+
+    from geodebug import check
+
+    report = check(path, deep=True)
+
+    ids = [diagnostic.rule_id for diagnostic in report.diagnostics]
+    assert "GEO304" in ids

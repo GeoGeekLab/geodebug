@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import math
+from typing import cast
 
 from geodebug.facts.keys import (
     CRS_AREA_OF_USE_BOUNDS,
@@ -20,6 +21,7 @@ from geodebug.models.enums import (
     Severity,
 )
 from geodebug.models.evidence import Evidence
+from geodebug.models.facts import FactRecord
 from geodebug.rules.base import RuleResult, RuleSpec
 
 
@@ -71,12 +73,10 @@ class CRSAreaOfUseRule:
         )
 
 
-def _known(fact: object) -> object | None:
-    if fact is None or not hasattr(fact, "state") or not hasattr(fact, "value"):
+def _known(fact: FactRecord | None) -> object | None:
+    if fact is None or fact.state is not FactState.KNOWN:
         return None
-    if fact.state is not FactState.KNOWN:
-        return None
-    return fact.value
+    return cast(object, fact.value)
 
 
 def _bounds(value: object) -> tuple[float, float, float, float] | None:
