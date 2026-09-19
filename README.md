@@ -7,11 +7,12 @@
 Deterministic diagnostics for geospatial data and workflows.
 
 [![CI](https://github.com/GeoGeekLab/geodebug/actions/workflows/ci.yml/badge.svg)](https://github.com/GeoGeekLab/geodebug/actions/workflows/ci.yml)
-[![Release](https://img.shields.io/github/v/release/GeoGeekLab/geodebug?display_name=tag&sort=semver)](https://github.com/GeoGeekLab/geodebug/releases/latest)
-[![Python](https://img.shields.io/badge/python-3.12%2B-3776AB?logo=python&logoColor=white)](https://www.python.org/)
-[![Typed](https://img.shields.io/badge/typing-strict-2F81F7)](pyproject.toml)
+[![Release](https://img.shields.io/github/v/release/GeoGeekLab/geodebug?display_name=tag&sort=semver&style=flat-square)](https://github.com/GeoGeekLab/geodebug/releases/latest)
+[![License: MIT](https://img.shields.io/badge/license-MIT-2ea44f?style=flat-square)](LICENSE)
+[![Python](https://img.shields.io/badge/python-3.12%2B-3776AB?style=flat-square&logo=python&logoColor=white)](https://www.python.org/)
+[![Typed](https://img.shields.io/badge/typing-strict-2F81F7?style=flat-square)](pyproject.toml)
 
-[Architecture](docs/architecture.md) · [Rule catalog](docs/rules.md) · [Changelog](CHANGELOG.md) · [v0.1.0](https://github.com/GeoGeekLab/geodebug/releases/tag/v0.1.0)
+[Architecture](docs/architecture.md) · [Rule catalog](docs/rules.md) · [Contributing](CONTRIBUTING.md) · [Security](SECURITY.md) · [Changelog](CHANGELOG.md) · [v0.1.0](https://github.com/GeoGeekLab/geodebug/releases/tag/v0.1.0)
 
 </div>
 
@@ -223,6 +224,26 @@ tests, and installation from a freshly built wheel.
 
 See [Architecture](docs/architecture.md), [Diagnostic rules](docs/rules.md), and
 [Releasing](docs/releasing.md) for the deeper contracts.
+
+## Contributing
+
+Contributions should start from a concrete geospatial failure mode or a clearly bounded
+engineering improvement. New diagnostics must preserve the four-state rule contract and include
+false-positive coverage where adjacent rules can cascade.
+
+See [CONTRIBUTING.md](CONTRIBUTING.md).
+
+## Security
+
+Please report vulnerabilities privately through GitHub's security reporting features when
+available. Do not publish exploit details in a public issue before a fix or mitigation is
+available.
+
+See [SECURITY.md](SECURITY.md).
+
+## License
+
+[MIT](LICENSE)
 
 ---
 
