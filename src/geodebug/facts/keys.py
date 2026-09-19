@@ -4,6 +4,8 @@ CRS_AUTHORITY = "crs.authority"
 CRS_CODE = "crs.code"
 CRS_KIND = "crs.kind"
 CRS_AXIS_UNITS = "crs.axis_units"
+CRS_AREA_OF_USE_BOUNDS = "crs.area_of_use.bounds"
+CRS_AREA_OF_USE_NAME = "crs.area_of_use.name"
 
 SPATIAL_BOUNDS = "spatial.bounds"
 
@@ -19,6 +21,7 @@ RASTER_TRANSFORM = "raster.transform"
 RASTER_BAND_COUNT = "raster.band_count"
 RASTER_DTYPES = "raster.dtypes"
 RASTER_NODATA = "raster.nodata"
+RASTER_NODATA_COLLISION_BANDS = "raster.nodata_collision_bands"
 
 RELATION_BOUNDS_OVERLAP = "relation.bounds.overlap"
 RELATION_OVERLAP_RATIO = "relation.bounds.overlap_ratio"

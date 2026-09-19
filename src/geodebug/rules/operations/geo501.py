@@ -1,12 +1,8 @@
-from collections.abc import Sequence
-
-from geodebug.facts.keys import CRS_AXIS_UNITS, CRS_KIND
 from geodebug.models.context import EvaluationContext
 from geodebug.models.diagnostics import SuggestedAction
 from geodebug.models.enums import (
     Certainty,
     CostClass,
-    FactState,
     FixSafety,
     RuleScope,
     RuleState,
@@ -14,6 +10,7 @@ from geodebug.models.enums import (
 )
 from geodebug.models.evidence import Evidence
 from geodebug.rules.base import RuleResult, RuleSpec
+from geodebug.rules.operations._geographic import geographic_crs_status
 
 
 class AngularCRSBufferRule:
@@ -24,7 +21,7 @@ class AngularCRSBufferRule:
         scope=RuleScope.OPERATION,
         default_severity=Severity.ERROR,
         certainty=Certainty.DETERMINISTIC,
-        requires=(CRS_KIND, CRS_AXIS_UNITS, "operation.distance"),
+        requires=("crs.kind", "crs.axis_units", "operation.distance"),
         cost=CostClass.METADATA,
         fix_safety=FixSafety.REVIEW_REQUIRED,
     )
@@ -33,35 +30,21 @@ class AngularCRSBufferRule:
         operation = context.operation
         if operation is None or operation.name.casefold() != "buffer":
             return RuleResult.not_applicable()
-
-        subject = context.primary
-        if subject is None:
-            return RuleResult.unknown("Buffer input is unavailable.")
-
-        crs_kind = subject.facts.get(CRS_KIND)
-        axis_units = subject.facts.get(CRS_AXIS_UNITS)
-        if crs_kind is None or crs_kind.state is not FactState.KNOWN:
-            return RuleResult.unknown("CRS type could not be established.")
-        if str(crs_kind.value).casefold() != "geographic":
-            return RuleResult.passed()
-        if axis_units is None or axis_units.state is not FactState.KNOWN:
-            return RuleResult.unknown("CRS axis units could not be established.")
         if "distance" not in operation.parameters:
             return RuleResult.unknown("Buffer distance was not provided.")
 
-        units_value = axis_units.value
-        if isinstance(units_value, Sequence) and not isinstance(units_value, str):
-            units = tuple(str(unit) for unit in units_value)
-        else:
-            units = (str(units_value),)
+        state, evidence, message = geographic_crs_status(context)
+        if state is RuleState.PASS:
+            return RuleResult.passed()
+        if state is RuleState.UNKNOWN:
+            return RuleResult.unknown(message)
 
         distance = operation.parameters["distance"]
         return RuleResult(
             state=RuleState.FAIL,
             message="Buffer distance is interpreted in angular coordinate units.",
             evidence=(
-                Evidence(key=CRS_KIND, value="geographic"),
-                Evidence(key=CRS_AXIS_UNITS, value=units),
+                *evidence,
                 Evidence(key="operation.distance", value=distance, origin="operation"),
             ),
             implication="The distance does not represent a metric buffer distance.",
