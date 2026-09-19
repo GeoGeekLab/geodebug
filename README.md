@@ -68,6 +68,7 @@ GeoDebug searches the current directory and its parents for `.geodebug.toml`. An
 config path can be supplied with `--config`.
 
 ```toml
+schema_version = "1"
 profile = "default"
 fail_on = "error"
 
@@ -120,7 +121,7 @@ adapter -> facts -> rules -> diagnostics -> report
 Rules never read files directly and adapters never emit diagnostics. Unknown evidence remains
 `UNKNOWN`; it is never silently treated as a pass.
 
-See [`docs/architecture.md`](docs/architecture.md) for the kernel contracts.
+See [`docs/architecture.md`](docs/architecture.md) for the kernel contracts and [`docs/rules.md`](docs/rules.md) for the released diagnostic contracts.
 
 ## Development
 
@@ -135,4 +136,6 @@ pytest
 ```
 
 Golden rule cases live in `tests/golden/cases.toml`. Each case declares both expected
-diagnostics and rules that must not be reported.
+diagnostics and rules that must not be reported. The release gate also enforces
+four-state rule contracts, metamorphic corrections, clean-corpus silence, and
+installable wheel validation.
