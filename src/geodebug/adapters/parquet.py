@@ -31,6 +31,7 @@ class GeoParquetAdapter:
         return 95 if Path(target).suffix.casefold() in {".parquet", ".geoparquet"} else 0
 
     def inspect(self, target: Any, options: InspectOptions) -> DatasetSnapshot:
+        del options
         try:
             import pyarrow.parquet as pq
         except ImportError as exc:
@@ -97,10 +98,9 @@ class GeoParquetAdapter:
         else:
             records.append(FactRecord.unknown(SPATIAL_BOUNDS, provenance=provenance))
 
-        if options.deep:
-            records.append(FactRecord.unknown(VECTOR_INVALID_GEOMETRY_COUNT, provenance=provenance))
-        else:
-            records.append(FactRecord.unknown(VECTOR_INVALID_GEOMETRY_COUNT, provenance=provenance))
+        records.append(
+            FactRecord.unknown(VECTOR_INVALID_GEOMETRY_COUNT, provenance=provenance)
+        )
 
         return DatasetSnapshot(
             subject=SubjectRef(

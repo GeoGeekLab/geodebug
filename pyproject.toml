@@ -18,7 +18,7 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-vector = ["pyogrio>=0.10,<1"]
+vector = ["geopandas>=1.0,<2", "pyogrio>=0.10,<1"]
 raster = ["rasterio>=1.4,<2"]
 parquet = ["pyarrow>=17,<30"]
 geopandas = ["geopandas>=1.0,<2"]

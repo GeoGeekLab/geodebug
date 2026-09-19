@@ -22,6 +22,7 @@ app = typer.Typer(no_args_is_help=True, pretty_exceptions_enable=False)
 rules_app = typer.Typer(no_args_is_help=True)
 app.add_typer(rules_app, name="rules")
 console = Console()
+error_console = Console(stderr=True)
 
 
 class OutputFormat(StrEnum):
@@ -65,7 +66,7 @@ def inspect_command(
     try:
         snapshot = inspect_target(target, deep=deep)
     except AdapterError as exc:
-        console.print(str(exc), style="bold red", stderr=True)
+        error_console.print(str(exc), style="bold red")
         raise typer.Exit(code=2) from None
     print_snapshot(snapshot, console=console)
 
@@ -87,7 +88,7 @@ def check_command(
     try:
         report = check_target(target, deep=deep)
     except AdapterError as exc:
-        console.print(str(exc), style="bold red", stderr=True)
+        error_console.print(str(exc), style="bold red")
         raise typer.Exit(code=2) from None
     _emit_report(report, output_format)
     raise typer.Exit(code=_exit_code(report, fail_on))
@@ -111,7 +112,7 @@ def compare_command(
     try:
         report = compare_targets(left, right, deep=deep)
     except AdapterError as exc:
-        console.print(str(exc), style="bold red", stderr=True)
+        error_console.print(str(exc), style="bold red")
         raise typer.Exit(code=2) from None
     _emit_report(report, output_format)
     raise typer.Exit(code=_exit_code(report, fail_on))
