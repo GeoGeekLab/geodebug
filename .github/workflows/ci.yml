@@ -31,6 +31,19 @@ jobs:
       - name: Tests
         run: pytest --cov=geodebug --cov-report=term-missing
 
+  integration:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install geospatial extras
+        run: python -m pip install -e '.[dev,all]'
+      - name: Integration tests
+        run: pytest tests/integration
+
   smoke:
     strategy:
       matrix:

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import math
+from typing import TypeGuard
 
 from pyproj import CRS, Transformer
 from pyproj.exceptions import CRSError, ProjError
@@ -18,6 +19,11 @@ from geodebug.facts.keys import (
 from geodebug.models.enums import FactState, SubjectKind
 from geodebug.models.facts import FactProvenance, FactRecord, FactStore
 from geodebug.models.subjects import DatasetSnapshot
+
+
+Bounds = tuple[float, float, float, float]
+Pair = tuple[float, float]
+Transform6 = tuple[float, float, float, float, float, float]
 
 
 def build_relation_facts(left: DatasetSnapshot, right: DatasetSnapshot) -> FactStore:
@@ -40,13 +46,13 @@ def _bounds_relation(
     *,
     provenance: FactProvenance,
 ) -> tuple[FactRecord, ...]:
-    left_bounds = _known(left, SPATIAL_BOUNDS)
-    right_bounds = _known(right, SPATIAL_BOUNDS)
+    left_bounds = _as_bounds(_known(left, SPATIAL_BOUNDS))
+    right_bounds = _as_bounds(_known(right, SPATIAL_BOUNDS))
     left_wkt = _known(left, CRS_WKT)
     right_wkt = _known(right, CRS_WKT)
     if (
-        not _is_bounds(left_bounds)
-        or not _is_bounds(right_bounds)
+        left_bounds is None
+        or right_bounds is None
         or not isinstance(left_wkt, str)
         or not isinstance(right_wkt, str)
     ):
@@ -107,17 +113,17 @@ def _grid_relation(
 
     left_wkt = _known(left, CRS_WKT)
     right_wkt = _known(right, CRS_WKT)
-    left_resolution = _known(left, RASTER_RESOLUTION)
-    right_resolution = _known(right, RASTER_RESOLUTION)
-    left_transform = _known(left, RASTER_TRANSFORM)
-    right_transform = _known(right, RASTER_TRANSFORM)
+    left_resolution = _as_pair(_known(left, RASTER_RESOLUTION))
+    right_resolution = _as_pair(_known(right, RASTER_RESOLUTION))
+    left_transform = _as_transform(_known(left, RASTER_TRANSFORM))
+    right_transform = _as_transform(_known(right, RASTER_TRANSFORM))
     if (
         not isinstance(left_wkt, str)
         or not isinstance(right_wkt, str)
-        or not _is_pair(left_resolution)
-        or not _is_pair(right_resolution)
-        or not _is_transform(left_transform)
-        or not _is_transform(right_transform)
+        or left_resolution is None
+        or right_resolution is None
+        or left_transform is None
+        or right_transform is None
     ):
         return _unknown_grid(provenance)
 
@@ -160,11 +166,7 @@ def _grid_relation(
     )
 
 
-def _transform_bounds(
-    bounds: tuple[float, float, float, float],
-    source_wkt: str,
-    target_wkt: str,
-) -> tuple[float, float, float, float] | None:
+def _transform_bounds(bounds: Bounds, source_wkt: str, target_wkt: str) -> Bounds | None:
     try:
         source = CRS.from_wkt(source_wkt)
         target = CRS.from_wkt(target_wkt)
@@ -176,7 +178,12 @@ def _transform_bounds(
         return None
     if not all(math.isfinite(value) for value in transformed):
         return None
-    return tuple(float(value) for value in transformed)
+    return (
+        float(transformed[0]),
+        float(transformed[1]),
+        float(transformed[2]),
+        float(transformed[3]),
+    )
 
 
 def _unknown_grid(provenance: FactProvenance) -> tuple[FactRecord, ...]:
@@ -186,25 +193,34 @@ def _unknown_grid(provenance: FactProvenance) -> tuple[FactRecord, ...]:
     )
 
 
-def _is_pair(value: object) -> bool:
+def _is_numeric_sequence(value: object, length: int) -> TypeGuard[list[float] | tuple[float, ...]]:
     return (
         isinstance(value, (list, tuple))
-        and len(value) == 2
-        and all(isinstance(item, (int, float)) for item in value)
-    )
-
-
-def _is_transform(value: object) -> bool:
-    return (
-        isinstance(value, (list, tuple))
-        and len(value) == 6
-        and all(isinstance(item, (int, float)) for item in value)
-    )
-
-
-def _is_bounds(value: object) -> bool:
-    return (
-        isinstance(value, (list, tuple))
-        and len(value) == 4
+        and len(value) == length
         and all(isinstance(item, (int, float)) and math.isfinite(item) for item in value)
     )
+
+
+def _as_pair(value: object) -> Pair | None:
+    if not _is_numeric_sequence(value, 2):
+        return None
+    return (float(value[0]), float(value[1]))
+
+
+def _as_transform(value: object) -> Transform6 | None:
+    if not _is_numeric_sequence(value, 6):
+        return None
+    return (
+        float(value[0]),
+        float(value[1]),
+        float(value[2]),
+        float(value[3]),
+        float(value[4]),
+        float(value[5]),
+    )
+
+
+def _as_bounds(value: object) -> Bounds | None:
+    if not _is_numeric_sequence(value, 4):
+        return None
+    return (float(value[0]), float(value[1]), float(value[2]), float(value[3]))

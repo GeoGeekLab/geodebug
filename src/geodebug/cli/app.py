@@ -1,19 +1,38 @@
 from __future__ import annotations
 
+from enum import StrEnum
 from importlib.resources import files
+from pathlib import Path
 from typing import Annotated
 
 import typer
 from rich.console import Console
 from rich.table import Table
 
+from geodebug.adapters.base import AdapterError
+from geodebug.api import check as check_target
+from geodebug.api import compare as compare_targets
+from geodebug.api import inspect as inspect_target
 from geodebug.engine.defaults import build_default_registry
+from geodebug.models.report import Report
+from geodebug.reporters.terminal import print_report, print_snapshot
 from geodebug.version import __version__
 
 app = typer.Typer(no_args_is_help=True, pretty_exceptions_enable=False)
 rules_app = typer.Typer(no_args_is_help=True)
 app.add_typer(rules_app, name="rules")
 console = Console()
+
+
+class OutputFormat(StrEnum):
+    TERMINAL = "terminal"
+    JSON = "json"
+
+
+class FailOn(StrEnum):
+    ERROR = "error"
+    WARNING = "warning"
+    NONE = "none"
 
 
 def _version_callback(value: bool) -> None:
@@ -35,6 +54,67 @@ def root(
     ] = False,
 ) -> None:
     """Deterministic diagnostics for geospatial data and workflows."""
+
+
+@app.command("inspect")
+def inspect_command(
+    target: Path,
+    deep: Annotated[bool, typer.Option(help="Allow full geometry scans.")] = False,
+) -> None:
+    """Inspect normalized facts without running diagnostic rules."""
+    try:
+        snapshot = inspect_target(target, deep=deep)
+    except AdapterError as exc:
+        console.print(str(exc), style="bold red", stderr=True)
+        raise typer.Exit(code=2) from None
+    print_snapshot(snapshot, console=console)
+
+
+@app.command("check")
+def check_command(
+    target: Path,
+    deep: Annotated[bool, typer.Option(help="Allow full geometry scans.")] = False,
+    output_format: Annotated[
+        OutputFormat,
+        typer.Option("--format", help="Output format."),
+    ] = OutputFormat.TERMINAL,
+    fail_on: Annotated[
+        FailOn,
+        typer.Option(help="Diagnostic severity that fails the command."),
+    ] = FailOn.ERROR,
+) -> None:
+    """Run diagnostics against one dataset."""
+    try:
+        report = check_target(target, deep=deep)
+    except AdapterError as exc:
+        console.print(str(exc), style="bold red", stderr=True)
+        raise typer.Exit(code=2) from None
+    _emit_report(report, output_format)
+    raise typer.Exit(code=_exit_code(report, fail_on))
+
+
+@app.command("compare")
+def compare_command(
+    left: Path,
+    right: Path,
+    deep: Annotated[bool, typer.Option(help="Allow full geometry scans.")] = False,
+    output_format: Annotated[
+        OutputFormat,
+        typer.Option("--format", help="Output format."),
+    ] = OutputFormat.TERMINAL,
+    fail_on: Annotated[
+        FailOn,
+        typer.Option(help="Diagnostic severity that fails the command."),
+    ] = FailOn.ERROR,
+) -> None:
+    """Run dataset and relational diagnostics against two datasets."""
+    try:
+        report = compare_targets(left, right, deep=deep)
+    except AdapterError as exc:
+        console.print(str(exc), style="bold red", stderr=True)
+        raise typer.Exit(code=2) from None
+    _emit_report(report, output_format)
+    raise typer.Exit(code=_exit_code(report, fail_on))
 
 
 @rules_app.command("list")
@@ -86,6 +166,21 @@ def schema() -> None:
         files("geodebug.schemas").joinpath("report.schema.json").read_text(encoding="utf-8"),
         nl=False,
     )
+
+
+def _emit_report(report: Report, output_format: OutputFormat) -> None:
+    if output_format is OutputFormat.JSON:
+        typer.echo(report.model_dump_json(indent=2))
+        return
+    print_report(report, console=console)
+
+
+def _exit_code(report: Report, fail_on: FailOn) -> int:
+    if fail_on is FailOn.NONE:
+        return 0
+    if fail_on is FailOn.WARNING:
+        return 1 if report.summary.errors or report.summary.warnings else 0
+    return 1 if report.summary.errors else 0
 
 
 def main() -> None:
