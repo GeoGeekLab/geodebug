@@ -1,72 +1,159 @@
-# GeoDebug
+<div align="center">
 
-Deterministic diagnostics for geospatial data and workflows.
+# GeoDebug
 
 **Find the geographic bug, not just the code bug.**
 
-GeoDebug turns geospatial correctness rules into explicit, testable diagnostics. Adapters
-observe datasets, rules evaluate spatial invariants, and the canonical JSON report provides a
-stable integration boundary for CLI, CI, and future agent tooling.
+Deterministic diagnostics for geospatial data and workflows.
 
-## Install
+[![CI](https://github.com/GeoGeekLab/geodebug/actions/workflows/ci.yml/badge.svg)](https://github.com/GeoGeekLab/geodebug/actions/workflows/ci.yml)
+[![Release](https://img.shields.io/github/v/release/GeoGeekLab/geodebug?display_name=tag&sort=semver)](https://github.com/GeoGeekLab/geodebug/releases/latest)
+[![Python](https://img.shields.io/badge/python-3.12%2B-3776AB?logo=python&logoColor=white)](https://www.python.org/)
+[![Typed](https://img.shields.io/badge/typing-strict-2F81F7)](pyproject.toml)
 
-PyPI publication is not enabled for 0.1.0. Install the tagged release directly
-from GitHub:
+[Architecture](docs/architecture.md) · [Rule catalog](docs/rules.md) · [Changelog](CHANGELOG.md) · [v0.1.0](https://github.com/GeoGeekLab/geodebug/releases/tag/v0.1.0)
 
-```bash
-pip install "geodebug @ git+https://github.com/GeoGeekLab/geodebug.git@v0.1.0"
+</div>
+
+---
+
+GDAL can open it. Python can run it. A geometry can be valid.
+
+**The workflow can still be geographically wrong.**
+
+GeoDebug is a deterministic diagnostic engine for spatial correctness. It turns CRS semantics,
+geometry state, raster grid structure, cross-dataset relationships, and operation context into
+stable `GEOxxx` diagnostics with explicit evidence.
+
+No LLM in the core. No silent CRS guessing. No automatic "fix everything."
+
+> [!NOTE]
+> GeoDebug prefers `UNKNOWN` to an unsupported conclusion.
+
+## What it catches
+
+GeoDebug is built for bugs that ordinary syntax checks and file validators often miss.
+
+| Domain | Examples |
+| --- | --- |
+| **CRS** | missing CRS, impossible angular coordinates, data outside a projected CRS area of use |
+| **Vector** | invalid geometry |
+| **Raster** | singular affine transforms, NoData/mask conflicts |
+| **Relations** | non-overlapping datasets, half-pixel raster grid shifts |
+| **Operations** | metric buffer, planar area, or planar distance on a geographic CRS |
+
+A file can be valid in isolation and still be wrong **for the operation you are about to run**.
+That distinction is the point.
+
+## See it fail
+
+```console
+$ geodebug preflight roads.geojson --operation buffer --distance 500
+
+roads.geojson
+ERROR GEO501  Buffer distance is interpreted in angular coordinate units.
+  crs.kind: geographic
+  crs.axis_units: degree, degree
+  operation.distance: 500
+1 error(s) · 0 warning(s) · 0 note(s) · 1 unknown
 ```
 
-Optional format support can be installed from the same tag:
+The rule is not guessing from code text. GeoDebug inspects the dataset, normalizes spatial facts,
+then evaluates the operation against those facts.
 
-```bash
-pip install "geodebug[vector] @ git+https://github.com/GeoGeekLab/geodebug.git@v0.1.0"
-pip install "geodebug[raster] @ git+https://github.com/GeoGeekLab/geodebug.git@v0.1.0"
-pip install "geodebug[parquet] @ git+https://github.com/GeoGeekLab/geodebug.git@v0.1.0"
-pip install "geodebug[geopandas] @ git+https://github.com/GeoGeekLab/geodebug.git@v0.1.0"
-pip install "geodebug[all] @ git+https://github.com/GeoGeekLab/geodebug.git@v0.1.0"
+## Mental model
+
+```text
+source
+  │
+  ▼
+adapter ──► facts ──► rules ──► diagnostics ──► report
+                        ▲
+                        │
+              dataset / relation / operation
 ```
 
-## Usage
+Three questions drive the engine:
 
-Inspect normalized facts without diagnostics:
+1. **Dataset** — is this dataset internally spatially plausible?
+2. **Relation** — are these datasets compatible with each other?
+3. **Operation** — is this operation semantically valid for these coordinates and units?
+
+Adapters observe. Rules diagnose. Policy filters presentation. Those boundaries are deliberate.
+
+## CLI
+
+| Command | Purpose |
+| --- | --- |
+| `geodebug inspect DATA` | Show normalized spatial facts without diagnosing |
+| `geodebug check DATA` | Run dataset diagnostics |
+| `geodebug compare A B` | Run dataset + relational diagnostics |
+| `geodebug preflight DATA --operation ...` | Check operation semantics before execution |
+| `geodebug rules list` | Inspect the built-in rule corpus |
+| `geodebug schema` | Print the canonical report schema |
+
+Full geometry or raster scans are opt-in:
 
 ```bash
-geodebug inspect roads.geojson
-```
-
-Run dataset checks:
-
-```bash
-geodebug check roads.geojson
 geodebug check landcover.tif --deep
 ```
 
-Compare two datasets:
-
-```bash
-geodebug compare dem-a.tif dem-b.tif
-```
-
-Check an operation before execution:
-
-```bash
-geodebug preflight roads.geojson --operation buffer --distance 500
-geodebug preflight parcels.geojson --operation area
-```
-
-Emit the canonical JSON report:
+Machine-readable output is first-class:
 
 ```bash
 geodebug check roads.geojson --format json
 ```
 
-The default path is metadata-first. Full geometry or raster scans are opt-in with `--deep`.
+## Install
+
+GeoDebug `0.1.0` is distributed from the GitHub release/tag. PyPI publication is not enabled yet.
+
+```bash
+pip install "geodebug @ git+https://github.com/GeoGeekLab/geodebug.git@v0.1.0"
+```
+
+For the full adapter set:
+
+```bash
+pip install "geodebug[all] @ git+https://github.com/GeoGeekLab/geodebug.git@v0.1.0"
+```
+
+Optional extras keep the core small:
+
+| Extra | Support |
+| --- | --- |
+| core | GeoJSON |
+| `vector` | GeoPackage, Shapefile, FlatGeobuf |
+| `raster` | GeoTIFF, COG, VRT |
+| `parquet` | GeoParquet |
+| `geopandas` | in-memory GeoDataFrame |
+| `all` | all optional adapters |
+
+Requires Python **3.12+**.
+
+## Diagnostic corpus
+
+GeoDebug `0.1.0` ships 11 built-in rules with stable IDs.
+
+| Family | Rules |
+| --- | --- |
+| CRS | [`GEO101`](docs/rules/GEO101.md) missing CRS · [`GEO103`](docs/rules/GEO103.md) coordinate range · [`GEO105`](docs/rules/GEO105.md) area of use |
+| Vector | [`GEO201`](docs/rules/GEO201.md) invalid geometry |
+| Raster | [`GEO301`](docs/rules/GEO301.md) affine transform · [`GEO304`](docs/rules/GEO304.md) NoData/mask conflict |
+| Relations | [`GEO402`](docs/rules/GEO402.md) spatial overlap · [`GEO404`](docs/rules/GEO404.md) grid alignment |
+| Operations | [`GEO501`](docs/rules/GEO501.md) buffer · [`GEO502`](docs/rules/GEO502.md) area · [`GEO503`](docs/rules/GEO503.md) distance/length |
+
+Every released rule has an explicit contract for `PASS`, `FAIL`, `UNKNOWN`, and
+`NOT_APPLICABLE`.
+
+```bash
+geodebug rules show GEO404
+```
 
 ## Project policy
 
-GeoDebug searches the current directory and its parents for `.geodebug.toml`. An explicit
-config path can be supplied with `--config`.
+Projects can tune severity, disable rules, and suppress known exceptions without changing rule
+truth values.
 
 ```toml
 schema_version = "1"
@@ -86,47 +173,43 @@ reason = "Known upstream coordinate convention"
 expires = 2027-01-01
 ```
 
-Profiles do not change rule truth values. `strict` promotes warnings to errors;
-`exploratory` demotes warnings to notes. Explicit severity overrides take precedence.
-Suppressions require a reason and may expire.
+GeoDebug searches the current directory and its parents for `.geodebug.toml`. Use `--config`
+to select one explicitly.
 
-## Built-in rules
+Profiles are intentionally simple:
 
-The current v0.1 rule set includes:
+- `default` — rule defaults
+- `strict` — warnings become errors
+- `exploratory` — warnings become notes
 
-- `GEO101` — missing CRS
-- `GEO103` — geographic coordinate out of range
-- `GEO105` — projected data outside CRS area of use
-- `GEO201` — invalid geometry
-- `GEO301` — invalid or singular raster transform
-- `GEO304` — NoData value conflicts with the validity mask
-- `GEO402` — no spatial overlap
-- `GEO404` — raster grid misalignment
-- `GEO501` — metric buffer on a geographic CRS
-- `GEO502` — planar area on a geographic CRS
-- `GEO503` — planar distance or length on a geographic CRS
+Explicit overrides win. Suppressions require a reason and may expire.
 
-Inspect rule contracts with:
+## Contracts over vibes
+
+A few things GeoDebug refuses to blur:
+
+- **Adapters do not diagnose.** They normalize observations into facts.
+- **Rules do not perform I/O.** They evaluate spatial invariants.
+- **`UNKNOWN` is not `PASS`.** Missing evidence stays missing.
+- **Policy does not rewrite truth.** It changes severity or visibility, not the rule result.
+- **Expensive scans are explicit.** `--deep` means `--deep`.
+- **Automatic repair is conservative.** A geometrically valid output is not necessarily a
+  scientifically valid fix.
+
+The canonical report schema is versioned independently at `1.0.0`; project config uses schema
+version `1`.
 
 ```bash
-geodebug rules list
-geodebug rules show GEO304
+geodebug schema
+geodebug schema --kind config
 ```
-
-## Architecture
-
-```text
-adapter -> facts -> rules -> diagnostics -> report
-```
-
-Rules never read files directly and adapters never emit diagnostics. Unknown evidence remains
-`UNKNOWN`; it is never silently treated as a pass.
-
-See [`docs/architecture.md`](docs/architecture.md) for the kernel contracts and [`docs/rules.md`](docs/rules.md) for the released diagnostic contracts.
 
 ## Development
 
 ```bash
+git clone https://github.com/GeoGeekLab/geodebug.git
+cd geodebug
+
 python -m venv .venv
 source .venv/bin/activate
 pip install -e '.[dev,all]'
@@ -136,7 +219,19 @@ mypy src/geodebug
 pytest
 ```
 
-Golden rule cases live in `tests/golden/cases.toml`. Each case declares both expected
-diagnostics and rules that must not be reported. The release gate also enforces
-four-state rule contracts, metamorphic corrections, clean-corpus silence, and
-installable wheel validation.
+The release gate checks more than unit tests: four-state rule contracts, golden
+`must_not_report` cases, metamorphic corrections, clean-corpus silence, cross-platform smoke
+tests, and installation from a freshly built wheel.
+
+See [Architecture](docs/architecture.md), [Diagnostic rules](docs/rules.md), and
+[Releasing](docs/releasing.md) for the deeper contracts.
+
+---
+
+<div align="center">
+
+**Geo to see. Geek to build.**
+
+GeoGeekLab
+
+</div>
