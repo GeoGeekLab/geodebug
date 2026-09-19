@@ -1,0 +1,147 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="810" viewBox="0 0 1440 810" role="img" aria-labelledby="title desc">
+  <title id="title">GeoDebug — deterministic diagnostics for geospatial data and workflows</title>
+  <desc id="desc">GeoDebug architecture from source through adapter, facts, rules, diagnostics, and report, with dataset, relation, and operation rule scopes.</desc>
+  <defs>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="2" stdDeviation="6" flood-color="#0b2344" flood-opacity=".08"/>
+    </filter>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0 10 5 0 10z" fill="#4f6f99"/>
+    </marker>
+    <style>
+      .sans{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif}
+      .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono",monospace}
+      .ink{fill:#0d2a50}
+      .muted{fill:#617a99}
+      .blue{fill:#1677d2}
+      .green{fill:#176b3a}
+      .box{fill:#f8fbff;stroke:#cddbec;stroke-width:1.5}
+      .box-blue{fill:#edf7ff;stroke:#87c7f5;stroke-width:1.5}
+      .box-green{fill:#eefaf1;stroke:#8dd3a0;stroke-width:1.5}
+      .label{font-size:20px;font-weight:700}
+      .small{font-size:14px}
+      .tiny{font-size:12px;letter-spacing:.5px}
+      .pipe{stroke:#4f6f99;stroke-width:3;fill:none;marker-end:url(#arrow)}
+    </style>
+  </defs>
+
+  <rect width="1440" height="810" rx="22" fill="#ffffff"/>
+  <rect x="1" y="1" width="1438" height="808" rx="21" fill="none" stroke="#dbe6f2"/>
+
+  <!-- Hero -->
+  <text x="54" y="83" class="sans ink" font-size="62" font-weight="760">GeoDebug</text>
+  <text x="56" y="125" class="mono ink" font-size="22">Find the geographic bug, not just the code bug.</text>
+  <line x1="880" y1="42" x2="880" y2="126" stroke="#aac0d9"/>
+  <text x="912" y="68" class="mono ink" font-size="16">deterministic diagnostics for</text>
+  <text x="912" y="92" class="mono ink" font-size="16">geospatial data + workflows</text>
+  <text x="912" y="122" class="mono muted tiny">CRS · VECTOR · RASTER · RELATIONS · OPERATIONS</text>
+
+  <!-- Pipeline -->
+  <g filter="url(#shadow)">
+    <rect x="42" y="170" width="182" height="122" rx="12" class="box"/>
+    <rect x="278" y="170" width="182" height="122" rx="12" class="box-blue"/>
+    <rect x="514" y="170" width="182" height="122" rx="12" class="box"/>
+    <rect x="750" y="170" width="182" height="122" rx="12" class="box-green"/>
+    <rect x="986" y="170" width="182" height="122" rx="12" class="box-blue"/>
+    <rect x="1222" y="170" width="176" height="122" rx="12" class="box-green"/>
+  </g>
+
+  <path d="M224 231H270" class="pipe"/>
+  <path d="M460 231H506" class="pipe"/>
+  <path d="M696 231H742" class="pipe"/>
+  <path d="M932 231H978" class="pipe"/>
+  <path d="M1168 231H1214" class="pipe"/>
+
+  <g class="mono">
+    <text x="62" y="206" class="ink label">source</text>
+    <text x="62" y="236" class="muted small">your geodata</text>
+    <text x="62" y="261" class="muted small">vector · raster · …</text>
+
+    <text x="298" y="206" class="ink label">adapter</text>
+    <text x="298" y="236" class="muted small">read + normalize</text>
+    <text x="298" y="261" class="muted small">format-specific I/O</text>
+
+    <text x="534" y="206" class="ink label">facts</text>
+    <text x="534" y="236" class="muted small">CRS · bounds · grid</text>
+    <text x="534" y="261" class="muted small">geometry · metadata</text>
+
+    <text x="770" y="206" class="ink label">rules</text>
+    <text x="770" y="236" class="muted small">spatial invariants</text>
+    <text x="770" y="261" class="muted small">explicit evidence</text>
+
+    <text x="1006" y="206" class="ink label">diagnostics</text>
+    <text x="1006" y="236" class="muted small">stable GEOxxx IDs</text>
+    <text x="1006" y="261" class="muted small">error · warn · note</text>
+
+    <text x="1242" y="206" class="ink label">report</text>
+    <text x="1242" y="236" class="muted small">terminal + JSON</text>
+    <text x="1242" y="261" class="muted small">CI-ready output</text>
+  </g>
+
+  <!-- Rule scopes -->
+  <path d="M841 292V326M841 326H622M841 326H1060" stroke="#5c83ad" stroke-width="1.6" stroke-dasharray="5 6" fill="none"/>
+  <path d="M622 326V346M841 326V346M1060 326V346" stroke="#5c83ad" stroke-width="1.6" stroke-dasharray="5 6"/>
+
+  <g filter="url(#shadow)">
+    <rect x="530" y="346" width="184" height="88" rx="10" class="box-green"/>
+    <rect x="749" y="346" width="184" height="88" rx="10" class="box-green"/>
+    <rect x="968" y="346" width="184" height="88" rx="10" class="box-green"/>
+  </g>
+  <g class="mono">
+    <text x="550" y="377" class="ink" font-size="17" font-weight="700">dataset</text>
+    <text x="550" y="403" class="muted small">one dataset</text>
+    <text x="769" y="377" class="ink" font-size="17" font-weight="700">relation</text>
+    <text x="769" y="403" class="muted small">datasets together</text>
+    <text x="988" y="377" class="ink" font-size="17" font-weight="700">operation</text>
+    <text x="988" y="403" class="muted small">before execution</text>
+  </g>
+
+  <!-- What it catches -->
+  <rect x="42" y="470" width="842" height="192" rx="14" class="box"/>
+  <text x="64" y="507" class="mono ink" font-size="20" font-weight="700">what GeoDebug catches</text>
+  <text x="660" y="506" class="mono muted tiny">COMMON SPATIAL BUGS · CAUGHT EARLY</text>
+  <line x1="64" y1="524" x2="862" y2="524" stroke="#dbe6f2"/>
+
+  <g class="mono">
+    <text x="66" y="558" class="blue" font-size="15" font-weight="700">CRS</text>
+    <text x="66" y="584" class="muted small">• missing CRS</text>
+    <text x="66" y="607" class="muted small">• coordinate range</text>
+    <text x="66" y="630" class="muted small">• area of use</text>
+
+    <text x="228" y="558" class="blue" font-size="15" font-weight="700">VECTOR</text>
+    <text x="228" y="584" class="muted small">• invalid geometry</text>
+
+    <text x="391" y="558" class="blue" font-size="15" font-weight="700">RASTER</text>
+    <text x="391" y="584" class="muted small">• affine transform</text>
+    <text x="391" y="607" class="muted small">• NoData / mask</text>
+
+    <text x="560" y="558" class="blue" font-size="15" font-weight="700">RELATIONS</text>
+    <text x="560" y="584" class="muted small">• spatial overlap</text>
+    <text x="560" y="607" class="muted small">• grid alignment</text>
+
+    <text x="725" y="558" class="blue" font-size="15" font-weight="700">OPERATIONS</text>
+    <text x="725" y="584" class="muted small">• buffer</text>
+    <text x="725" y="607" class="muted small">• area</text>
+    <text x="725" y="630" class="muted small">• distance</text>
+  </g>
+
+  <!-- Principles -->
+  <rect x="906" y="470" width="492" height="192" rx="14" class="box"/>
+  <text x="928" y="507" class="mono ink" font-size="20" font-weight="700">design principles</text>
+  <text x="928" y="548" class="mono ink" font-size="15" font-weight="700">01  deterministic diagnostics</text>
+  <text x="958" y="570" class="mono muted small">same facts → same result</text>
+  <text x="928" y="602" class="mono ink" font-size="15" font-weight="700">02  explicit evidence</text>
+  <text x="958" y="624" class="mono muted small">findings explain why</text>
+  <text x="1170" y="548" class="mono green" font-size="14" font-weight="700">UNKNOWN</text>
+  <text x="1170" y="571" class="mono muted small">beats an unsupported</text>
+  <text x="1170" y="592" class="mono muted small">conclusion</text>
+
+  <!-- Terminal -->
+  <rect x="42" y="690" width="1356" height="82" rx="12" fill="#132238"/>
+  <circle cx="66" cy="712" r="6" fill="#ff6b6b"/>
+  <circle cx="86" cy="712" r="6" fill="#f6c453"/>
+  <circle cx="106" cy="712" r="6" fill="#4bc878"/>
+  <text x="62" y="744" class="mono" fill="#d8e6f5" font-size="15">$ geodebug preflight roads.geojson --operation buffer --distance 500</text>
+  <text x="62" y="766" class="mono" fill="#ff7b7b" font-size="14">ERROR GEO501</text>
+  <text x="180" y="766" class="mono" fill="#d8e6f5" font-size="14">buffer distance is interpreted in angular coordinate units</text>
+</svg>

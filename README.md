@@ -29,7 +29,7 @@ stable `GEOxxx` diagnostics with explicit evidence.
 No LLM in the core. No silent CRS guessing. No automatic "fix everything."
 
 <p align="center">
-  <img src="assets/geodebug-overview.webp" alt="GeoDebug architecture, diagnostic scopes, rule families, and CLI example" width="100%">
+  <img src="assets/geodebug-overview.svg" alt="GeoDebug architecture, diagnostic scopes, rule families, and CLI example" width="100%">
 </p>
 
 ## What it catches
