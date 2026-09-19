@@ -34,6 +34,11 @@ class OutputFormat(StrEnum):
     JSON = "json"
 
 
+class SchemaKind(StrEnum):
+    REPORT = "report"
+    CONFIG = "config"
+
+
 def _version_callback(value: bool) -> None:
     if value:
         typer.echo(__version__)
@@ -224,10 +229,16 @@ def show_rule(rule_id: str) -> None:
 
 
 @app.command("schema")
-def schema() -> None:
-    """Print the canonical report JSON Schema."""
+def schema(
+    kind: Annotated[
+        SchemaKind,
+        typer.Option(help="Schema to print."),
+    ] = SchemaKind.REPORT,
+) -> None:
+    """Print a canonical GeoDebug JSON Schema."""
+    filename = "report.schema.json" if kind is SchemaKind.REPORT else "config.schema.json"
     typer.echo(
-        files("geodebug.schemas").joinpath("report.schema.json").read_text(encoding="utf-8"),
+        files("geodebug.schemas").joinpath(filename).read_text(encoding="utf-8"),
         nl=False,
     )
 

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from datetime import date
 from enum import StrEnum
+from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
@@ -62,6 +63,7 @@ class SuppressionConfig(BaseModel):
 class GeoDebugConfig(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
+    schema_version: Literal["1"] = "1"
     profile: ProfileName = ProfileName.DEFAULT
     fail_on: FailOnName = FailOnName.ERROR
     rules: RulesConfig = Field(default_factory=RulesConfig)
