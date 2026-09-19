@@ -62,7 +62,7 @@ strict = true
 packages = ["geodebug"]
 
 [[tool.mypy.overrides]]
-module = ["geopandas.*", "pyarrow.*", "pyogrio.*", "rasterio.*"]
+module = ["geopandas.*", "pyarrow.*", "pyogrio.*", "rasterio.*", "shapely.*"]
 ignore_missing_imports = true
 
 [tool.coverage.run]

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import math
+from typing import cast
 
 import pyproj
 
@@ -34,7 +35,7 @@ def _known(snapshot: DatasetSnapshot, key: str) -> object | None:
     fact = snapshot.facts.get(key)
     if fact is None or fact.state is not FactState.KNOWN:
         return None
-    return fact.value
+    return cast(object, fact.value)
 
 
 def _bounds_relation(
