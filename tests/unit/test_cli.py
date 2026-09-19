@@ -4,7 +4,6 @@ from typer.testing import CliRunner
 
 from geodebug.cli.app import app
 
-
 runner = CliRunner()
 
 
