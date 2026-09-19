@@ -4,17 +4,73 @@ Deterministic diagnostics for geospatial data and workflows.
 
 **Find the geographic bug, not just the code bug.**
 
-GeoDebug is an early-stage GeoGeekLab project for turning geospatial correctness rules into explicit, testable diagnostics. The core is intentionally independent of GIS file formats and language models: adapters produce normalized facts, rules evaluate spatial invariants, and reporters expose stable diagnostics.
+GeoDebug turns geospatial correctness rules into explicit, testable diagnostics. Adapters
+observe datasets, rules evaluate spatial invariants, and the canonical JSON report provides a
+stable integration boundary for CLI, CI, and future agent tooling.
 
-## Status
+## Install
 
-The repository is in kernel development. The current vertical slice includes the fact model, rule engine, canonical report schema, CLI rule inspection, and three sentinel rules:
+Core GeoJSON support:
+
+```bash
+pip install geodebug
+```
+
+Optional format support:
+
+```bash
+pip install "geodebug[vector]"     # GPKG, Shapefile, FlatGeobuf
+pip install "geodebug[raster]"     # GeoTIFF, COG, VRT
+pip install "geodebug[parquet]"    # GeoParquet
+pip install "geodebug[geopandas]"  # in-memory GeoDataFrame
+pip install "geodebug[all]"
+```
+
+## Usage
+
+Inspect normalized facts without diagnostics:
+
+```bash
+geodebug inspect roads.geojson
+```
+
+Run dataset checks:
+
+```bash
+geodebug check roads.geojson
+geodebug check roads.geojson --deep
+```
+
+Compare two datasets:
+
+```bash
+geodebug compare dem-a.tif dem-b.tif
+```
+
+Emit the canonical JSON report:
+
+```bash
+geodebug check roads.geojson --format json
+```
+
+The default path is metadata-first. Full vector geometry scans are opt-in with `--deep`.
+
+## Built-in rules
+
+The v0.1 usable core currently includes:
 
 - `GEO101` — missing CRS
 - `GEO201` — invalid geometry
+- `GEO402` — no spatial overlap
+- `GEO404` — raster grid misalignment
 - `GEO501` — metric buffer on a geographic CRS
 
-File-format adapters and user-facing `check` / `compare` workflows are the next milestone.
+Inspect rule contracts with:
+
+```bash
+geodebug rules list
+geodebug rules show GEO404
+```
 
 ## Architecture
 
@@ -22,31 +78,19 @@ File-format adapters and user-facing `check` / `compare` workflows are the next 
 adapter -> facts -> rules -> diagnostics -> report
 ```
 
-Rules never read files directly and adapters never emit diagnostics.
+Rules never read files directly and adapters never emit diagnostics. Unknown evidence remains
+`UNKNOWN`; it is never silently treated as a pass.
+
+See [`docs/architecture.md`](docs/architecture.md) for the kernel contracts.
 
 ## Development
 
 ```bash
 python -m venv .venv
 source .venv/bin/activate
-pip install -e '.[dev]'
+pip install -e '.[dev,all]'
 
 ruff check .
 mypy src/geodebug
 pytest
 ```
-
-Inspect the registered rules:
-
-```bash
-geodebug rules list
-geodebug rules show GEO501
-```
-
-Print the canonical report JSON Schema:
-
-```bash
-geodebug schema
-```
-
-See [`docs/architecture.md`](docs/architecture.md) for the kernel contracts.

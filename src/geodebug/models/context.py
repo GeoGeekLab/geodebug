@@ -1,5 +1,6 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
+from geodebug.models.facts import FactStore
 from geodebug.models.operations import OperationContext
 from geodebug.models.subjects import DatasetSnapshot
 
@@ -8,6 +9,7 @@ from geodebug.models.subjects import DatasetSnapshot
 class EvaluationContext:
     subjects: tuple[DatasetSnapshot, ...]
     operation: OperationContext | None = None
+    facts: FactStore = field(default_factory=FactStore)
 
     @property
     def primary(self) -> DatasetSnapshot | None:

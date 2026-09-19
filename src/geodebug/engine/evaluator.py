@@ -1,8 +1,10 @@
+from collections.abc import Iterable
+
 from geodebug.engine.fingerprint import diagnostic_fingerprint
 from geodebug.engine.policy import Policy
 from geodebug.engine.registry import RuleRegistry
 from geodebug.models.context import EvaluationContext
-from geodebug.models.enums import RuleState, Severity
+from geodebug.models.enums import RuleScope, RuleState, Severity
 from geodebug.models.report import (
     DiagnosticModel,
     EvidenceModel,
@@ -13,6 +15,7 @@ from geodebug.models.report import (
     SummaryModel,
     ToolInfo,
 )
+from geodebug.rules.base import Rule
 from geodebug.version import __version__
 
 
@@ -27,57 +30,63 @@ class Evaluator:
         unknown_rules = 0
         not_applicable_rules = 0
 
-        subject_ids = tuple(subject.subject.id for subject in context.subjects)
-        operation_name = context.operation.name if context.operation is not None else None
-
         for rule in self._registry.all():
-            result = rule.evaluate(context)
-            if result.state is RuleState.PASS:
-                passed_rules += 1
-                continue
-            if result.state is RuleState.UNKNOWN:
-                unknown_rules += 1
-                continue
-            if result.state is RuleState.NOT_APPLICABLE:
-                not_applicable_rules += 1
-                continue
+            for rule_context in _contexts_for_rule(rule, context):
+                result = rule.evaluate(rule_context)
+                if result.state is RuleState.PASS:
+                    passed_rules += 1
+                    continue
+                if result.state is RuleState.UNKNOWN:
+                    unknown_rules += 1
+                    continue
+                if result.state is RuleState.NOT_APPLICABLE:
+                    not_applicable_rules += 1
+                    continue
 
-            severity = self._policy.severity_for(rule.spec)
-            fingerprint = diagnostic_fingerprint(
-                rule_id=rule.spec.id,
-                subject_ids=subject_ids,
-                operation_name=operation_name,
-                evidence=result.evidence,
-            )
-            diagnostics.append(
-                DiagnosticModel(
-                    fingerprint=fingerprint,
-                    rule_id=rule.spec.id,
-                    severity=severity,
-                    certainty=rule.spec.certainty,
-                    subject_ids=list(subject_ids),
-                    message=result.message or rule.spec.name,
-                    evidence=[
-                        EvidenceModel(
-                            key=item.key,
-                            value=item.value,
-                            origin=item.origin,
-                            certainty=item.certainty,
-                        )
-                        for item in result.evidence
-                    ],
-                    implication=result.implication,
-                    suggestion=(
-                        SuggestedActionModel(
-                            action=result.suggestion.action,
-                            safety=result.suggestion.safety,
-                            detail=result.suggestion.detail,
-                        )
-                        if result.suggestion is not None
-                        else None
-                    ),
+                subject_ids = tuple(
+                    subject.subject.id for subject in rule_context.subjects
                 )
-            )
+                operation_name = (
+                    rule_context.operation.name
+                    if rule_context.operation is not None
+                    else None
+                )
+                severity = self._policy.severity_for(rule.spec)
+                fingerprint = diagnostic_fingerprint(
+                    rule_id=rule.spec.id,
+                    subject_ids=subject_ids,
+                    operation_name=operation_name,
+                    evidence=result.evidence,
+                )
+                diagnostics.append(
+                    DiagnosticModel(
+                        fingerprint=fingerprint,
+                        rule_id=rule.spec.id,
+                        severity=severity,
+                        certainty=rule.spec.certainty,
+                        subject_ids=list(subject_ids),
+                        message=result.message or rule.spec.name,
+                        evidence=[
+                            EvidenceModel(
+                                key=item.key,
+                                value=item.value,
+                                origin=item.origin,
+                                certainty=item.certainty,
+                            )
+                            for item in result.evidence
+                        ],
+                        implication=result.implication,
+                        suggestion=(
+                            SuggestedActionModel(
+                                action=result.suggestion.action,
+                                safety=result.suggestion.safety,
+                                detail=result.suggestion.detail,
+                            )
+                            if result.suggestion is not None
+                            else None
+                        ),
+                    )
+                )
 
         diagnostics.sort(
             key=lambda item: (_severity_rank(item.severity), item.rule_id, item.fingerprint)
@@ -105,6 +114,21 @@ class Evaluator:
             diagnostics=diagnostics,
             summary=summary,
         )
+
+
+def _contexts_for_rule(
+    rule: Rule,
+    context: EvaluationContext,
+) -> Iterable[EvaluationContext]:
+    if rule.spec.scope is RuleScope.DATASET:
+        for subject in context.subjects:
+            yield EvaluationContext(
+                subjects=(subject,),
+                operation=context.operation,
+                facts=context.facts,
+            )
+        return
+    yield context
 
 
 def _severity_rank(severity: Severity) -> int:
