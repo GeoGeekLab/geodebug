@@ -193,34 +193,40 @@ def _unknown_grid(provenance: FactProvenance) -> tuple[FactRecord, ...]:
     )
 
 
-def _is_numeric_sequence(value: object, length: int) -> TypeGuard[list[float] | tuple[float, ...]]:
-    return (
-        isinstance(value, (list, tuple))
-        and len(value) == length
-        and all(isinstance(item, (int, float)) and math.isfinite(item) for item in value)
-    )
+def _numbers(value: object, length: int) -> tuple[float, ...] | None:
+    if not isinstance(value, (list, tuple)) or len(value) != length:
+        return None
+    numbers: list[float] = []
+    for item in value:
+        if not isinstance(item, (int, float)) or not math.isfinite(item):
+            return None
+        numbers.append(float(item))
+    return tuple(numbers)
 
 
 def _as_pair(value: object) -> Pair | None:
-    if not _is_numeric_sequence(value, 2):
+    numbers = _numbers(value, 2)
+    if numbers is None:
         return None
-    return (float(value[0]), float(value[1]))
+    return (numbers[0], numbers[1])
 
 
 def _as_transform(value: object) -> Transform6 | None:
-    if not _is_numeric_sequence(value, 6):
+    numbers = _numbers(value, 6)
+    if numbers is None:
         return None
     return (
-        float(value[0]),
-        float(value[1]),
-        float(value[2]),
-        float(value[3]),
-        float(value[4]),
-        float(value[5]),
+        numbers[0],
+        numbers[1],
+        numbers[2],
+        numbers[3],
+        numbers[4],
+        numbers[5],
     )
 
 
 def _as_bounds(value: object) -> Bounds | None:
-    if not _is_numeric_sequence(value, 4):
+    numbers = _numbers(value, 4)
+    if numbers is None:
         return None
-    return (float(value[0]), float(value[1]), float(value[2]), float(value[3]))
+    return (numbers[0], numbers[1], numbers[2], numbers[3])

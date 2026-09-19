@@ -1,14 +1,14 @@
 import pytest
 
-rasterio = pytest.importorskip("rasterio")
-from rasterio.transform import from_origin
-
 from geodebug import compare, inspect
 from geodebug.facts.keys import RASTER_RESOLUTION
 
 
 def _write_raster(path, *, west: float) -> None:
     import numpy as np
+
+    rasterio = pytest.importorskip("rasterio")
+    from rasterio.transform import from_origin
 
     data = np.ones((1, 10, 10), dtype="uint8")
     with rasterio.open(
@@ -26,6 +26,7 @@ def _write_raster(path, *, west: float) -> None:
 
 
 def test_rasterio_adapter_reads_grid_metadata(tmp_path) -> None:
+    pytest.importorskip("rasterio")
     path = tmp_path / "grid.tif"
     _write_raster(path, west=0.0)
 
@@ -36,6 +37,7 @@ def test_rasterio_adapter_reads_grid_metadata(tmp_path) -> None:
 
 
 def test_compare_detects_half_pixel_raster_misalignment(tmp_path) -> None:
+    pytest.importorskip("rasterio")
     left = tmp_path / "left.tif"
     right = tmp_path / "right.tif"
     _write_raster(left, west=0.0)

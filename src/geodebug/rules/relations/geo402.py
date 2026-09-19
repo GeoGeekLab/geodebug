@@ -47,5 +47,5 @@ class NoSpatialOverlapRule:
             state=RuleState.FAIL,
             message="Dataset extents do not overlap.",
             evidence=tuple(evidence),
-            implication="Spatial operations between these datasets cannot produce intersecting results.",
+            implication=(\n                "Spatial operations between these datasets cannot produce "\n                "intersecting results."\n            ),
         )

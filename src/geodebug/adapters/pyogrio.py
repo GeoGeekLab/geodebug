@@ -24,7 +24,7 @@ from geodebug.models.subjects import DatasetSnapshot, SubjectRef
 
 class PyogrioAdapter:
     name = "pyogrio"
-    _suffixes = {".fgb", ".gpkg", ".shp"}
+    _suffixes = frozenset({".fgb", ".gpkg", ".shp"})
 
     def supports(self, target: Any) -> int:
         if not isinstance(target, (str, Path)):

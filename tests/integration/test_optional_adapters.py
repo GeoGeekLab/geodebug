@@ -1,14 +1,11 @@
 import pytest
-
-geopandas = pytest.importorskip("geopandas")
-pytest.importorskip("pyarrow")
-pytest.importorskip("pyogrio")
 from shapely.geometry import Point
 
 from geodebug import inspect
 
 
 def _frame():
+    geopandas = pytest.importorskip("geopandas")
     return geopandas.GeoDataFrame(
         {"value": [1, 2]},
         geometry=[Point(0, 0), Point(1, 1)],
@@ -23,6 +20,7 @@ def test_geopandas_in_memory_adapter() -> None:
 
 
 def test_pyogrio_file_adapter(tmp_path) -> None:
+    pytest.importorskip("pyogrio")
     path = tmp_path / "points.gpkg"
     _frame().to_file(path, driver="GPKG")
 
@@ -32,6 +30,7 @@ def test_pyogrio_file_adapter(tmp_path) -> None:
 
 
 def test_geoparquet_adapter(tmp_path) -> None:
+    pytest.importorskip("pyarrow")
     path = tmp_path / "points.parquet"
     _frame().to_parquet(path)
 

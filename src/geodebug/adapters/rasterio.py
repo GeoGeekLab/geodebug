@@ -27,7 +27,7 @@ from geodebug.models.subjects import DatasetSnapshot, SubjectRef
 
 class RasterioAdapter:
     name = "rasterio"
-    _suffixes = {".img", ".tif", ".tiff", ".vrt"}
+    _suffixes = frozenset({".img", ".tif", ".tiff", ".vrt"})
 
     def supports(self, target: Any) -> int:
         if not isinstance(target, (str, Path)):

@@ -55,7 +55,7 @@ class GeoParquetAdapter:
         primary = geo.get("primary_column")
         columns = geo.get("columns", {})
         if not isinstance(primary, str) or not isinstance(columns, dict) or primary not in columns:
-            raise AdapterError("GeoParquet metadata does not define a valid primary geometry column")
+            raise AdapterError(\n                "GeoParquet metadata does not define a valid primary geometry column"\n            )
         column = columns[primary]
         if not isinstance(column, dict):
             raise AdapterError("GeoParquet primary geometry metadata is invalid")
