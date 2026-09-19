@@ -1,0 +1,54 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://geogeeklab.github.io/geodebug/schemas/config-1.json",
+  "title": "GeoDebug Config",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {"const": "1", "default": "1"},
+    "profile": {
+      "enum": ["default", "strict", "exploratory"],
+      "default": "default"
+    },
+    "fail_on": {
+      "enum": ["error", "warning", "none"],
+      "default": "error"
+    },
+    "rules": {"$ref": "#/$defs/rules"},
+    "suppress": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/suppression"},
+      "default": []
+    }
+  },
+  "$defs": {
+    "rules": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "disable": {
+          "type": "array",
+          "items": {"type": "string", "pattern": "^GEO[0-9]{3}$"},
+          "default": []
+        },
+        "severity": {
+          "type": "object",
+          "propertyNames": {"pattern": "^GEO[0-9]{3}$"},
+          "additionalProperties": {"enum": ["error", "warning", "note"]},
+          "default": {}
+        }
+      }
+    },
+    "suppression": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["rule", "reason"],
+      "properties": {
+        "rule": {"type": "string", "pattern": "^GEO[0-9]{3}$"},
+        "path": {"type": "string", "default": "*"},
+        "reason": {"type": "string", "minLength": 1},
+        "expires": {"type": ["string", "null"], "format": "date"}
+      }
+    }
+  }
+}

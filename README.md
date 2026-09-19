@@ -10,20 +10,21 @@ stable integration boundary for CLI, CI, and future agent tooling.
 
 ## Install
 
-Core GeoJSON support:
+PyPI publication is not enabled for 0.1.0. Install the tagged release directly
+from GitHub:
 
 ```bash
-pip install geodebug
+pip install "geodebug @ git+https://github.com/GeoGeekLab/geodebug.git@v0.1.0"
 ```
 
-Optional format support:
+Optional format support can be installed from the same tag:
 
 ```bash
-pip install "geodebug[vector]"     # GPKG, Shapefile, FlatGeobuf
-pip install "geodebug[raster]"     # GeoTIFF, COG, VRT
-pip install "geodebug[parquet]"    # GeoParquet
-pip install "geodebug[geopandas]"  # in-memory GeoDataFrame
-pip install "geodebug[all]"
+pip install "geodebug[vector] @ git+https://github.com/GeoGeekLab/geodebug.git@v0.1.0"
+pip install "geodebug[raster] @ git+https://github.com/GeoGeekLab/geodebug.git@v0.1.0"
+pip install "geodebug[parquet] @ git+https://github.com/GeoGeekLab/geodebug.git@v0.1.0"
+pip install "geodebug[geopandas] @ git+https://github.com/GeoGeekLab/geodebug.git@v0.1.0"
+pip install "geodebug[all] @ git+https://github.com/GeoGeekLab/geodebug.git@v0.1.0"
 ```
 
 ## Usage
@@ -68,6 +69,7 @@ GeoDebug searches the current directory and its parents for `.geodebug.toml`. An
 config path can be supplied with `--config`.
 
 ```toml
+schema_version = "1"
 profile = "default"
 fail_on = "error"
 
@@ -120,7 +122,7 @@ adapter -> facts -> rules -> diagnostics -> report
 Rules never read files directly and adapters never emit diagnostics. Unknown evidence remains
 `UNKNOWN`; it is never silently treated as a pass.
 
-See [`docs/architecture.md`](docs/architecture.md) for the kernel contracts.
+See [`docs/architecture.md`](docs/architecture.md) for the kernel contracts and [`docs/rules.md`](docs/rules.md) for the released diagnostic contracts.
 
 ## Development
 
@@ -135,4 +137,6 @@ pytest
 ```
 
 Golden rule cases live in `tests/golden/cases.toml`. Each case declares both expected
-diagnostics and rules that must not be reported.
+diagnostics and rules that must not be reported. The release gate also enforces
+four-state rule contracts, metamorphic corrections, clean-corpus silence, and
+installable wheel validation.
