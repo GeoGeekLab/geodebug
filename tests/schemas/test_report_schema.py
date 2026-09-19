@@ -9,7 +9,6 @@ from geodebug.engine.defaults import build_default_registry
 from geodebug.engine.evaluator import Evaluator
 from geodebug.models.context import EvaluationContext
 
-
 SCHEMA_DIR = Path(__file__).parents[2] / "schemas"
 
 

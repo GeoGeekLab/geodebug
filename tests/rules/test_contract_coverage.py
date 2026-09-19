@@ -26,7 +26,6 @@ from geodebug.models.operations import OperationContext
 from geodebug.models.subjects import DatasetSnapshot, SubjectRef
 from geodebug.rules.base import Rule
 
-
 DOCS = Path(__file__).parents[2] / "docs" / "rules"
 
 
