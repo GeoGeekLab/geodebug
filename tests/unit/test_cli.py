@@ -110,3 +110,12 @@ def test_preflight_cli_detects_area_in_geographic_crs(tmp_path) -> None:
     assert result.exit_code == 1
     report = json.loads(result.stdout)
     assert [item["rule_id"] for item in report["diagnostics"]] == ["GEO502"]
+
+
+def test_schema_command_emits_config_schema() -> None:
+    result = runner.invoke(app, ["schema", "--kind", "config"])
+
+    assert result.exit_code == 0
+    schema = json.loads(result.stdout)
+    assert schema["title"] == "GeoDebug Config"
+    assert schema["properties"]["schema_version"]["const"] == "1"
