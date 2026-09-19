@@ -4,18 +4,30 @@ build-backend = "hatchling.build"
 
 [project]
 name = "geodebug"
-version = "0.0.1.dev0"
+version = "0.1.0.dev0"
 description = "Deterministic diagnostics for geospatial data and workflows."
 readme = "README.md"
 requires-python = ">=3.12"
 authors = [{ name = "GeoGeekLab" }]
 dependencies = [
   "pydantic>=2.9,<3",
+  "pyproj>=3.6,<4",
   "rich>=13.9,<15",
+  "shapely>=2.0,<3",
   "typer>=0.15,<1",
 ]
 
 [project.optional-dependencies]
+vector = ["pyogrio>=0.10,<1"]
+raster = ["rasterio>=1.4,<2"]
+parquet = ["pyarrow>=17,<30"]
+geopandas = ["geopandas>=1.0,<2"]
+all = [
+  "geopandas>=1.0,<2",
+  "pyarrow>=17,<30",
+  "pyogrio>=0.10,<1",
+  "rasterio>=1.4,<2",
+]
 dev = [
   "jsonschema>=4.23,<5",
   "mypy>=1.13,<2",
@@ -48,6 +60,10 @@ known-first-party = ["geodebug"]
 python_version = "3.12"
 strict = true
 packages = ["geodebug"]
+
+[[tool.mypy.overrides]]
+module = ["geopandas.*", "pyarrow.*", "pyogrio.*", "rasterio.*"]
+ignore_missing_imports = true
 
 [tool.coverage.run]
 source = ["geodebug"]

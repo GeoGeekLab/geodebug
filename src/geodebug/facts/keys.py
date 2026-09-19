@@ -1,6 +1,26 @@
 CRS_PRESENT = "crs.present"
+CRS_WKT = "crs.wkt"
+CRS_AUTHORITY = "crs.authority"
+CRS_CODE = "crs.code"
 CRS_KIND = "crs.kind"
 CRS_AXIS_UNITS = "crs.axis_units"
 
+SPATIAL_BOUNDS = "spatial.bounds"
+
 VECTOR_GEOMETRY_COUNT = "vector.geometry.count"
 VECTOR_INVALID_GEOMETRY_COUNT = "vector.geometry.invalid_count"
+VECTOR_EMPTY_GEOMETRY_COUNT = "vector.geometry.empty_count"
+VECTOR_GEOMETRY_TYPES = "vector.geometry.types"
+
+RASTER_WIDTH = "raster.width"
+RASTER_HEIGHT = "raster.height"
+RASTER_RESOLUTION = "raster.resolution"
+RASTER_TRANSFORM = "raster.transform"
+RASTER_BAND_COUNT = "raster.band_count"
+RASTER_DTYPES = "raster.dtypes"
+RASTER_NODATA = "raster.nodata"
+
+RELATION_BOUNDS_OVERLAP = "relation.bounds.overlap"
+RELATION_OVERLAP_RATIO = "relation.bounds.overlap_ratio"
+RELATION_GRID_ALIGNED = "relation.grid.aligned"
+RELATION_GRID_OFFSET_PIXELS = "relation.grid.offset_pixels"
