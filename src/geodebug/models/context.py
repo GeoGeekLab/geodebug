@@ -1,0 +1,14 @@
+from dataclasses import dataclass
+
+from geodebug.models.operations import OperationContext
+from geodebug.models.subjects import DatasetSnapshot
+
+
+@dataclass(frozen=True, slots=True)
+class EvaluationContext:
+    subjects: tuple[DatasetSnapshot, ...]
+    operation: OperationContext | None = None
+
+    @property
+    def primary(self) -> DatasetSnapshot | None:
+        return self.subjects[0] if self.subjects else None

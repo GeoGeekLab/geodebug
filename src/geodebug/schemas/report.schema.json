@@ -1,0 +1,94 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://geogeeklab.github.io/geodebug/schemas/report-1.0.0.json",
+  "title": "GeoDebug Report",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "tool", "run", "subjects", "diagnostics", "summary"],
+  "properties": {
+    "schema_version": {"const": "1.0.0"},
+    "tool": {"$ref": "#/$defs/tool"},
+    "run": {"$ref": "#/$defs/run"},
+    "subjects": {"type": "array", "items": {"$ref": "#/$defs/subject"}},
+    "diagnostics": {"type": "array", "items": {"$ref": "#/$defs/diagnostic"}},
+    "summary": {"$ref": "#/$defs/summary"}
+  },
+  "$defs": {
+    "tool": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "version"],
+      "properties": {
+        "name": {"const": "geodebug"},
+        "version": {"type": "string"}
+      }
+    },
+    "run": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["profile"],
+      "properties": {"profile": {"type": "string"}}
+    },
+    "subject": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "kind"],
+      "properties": {
+        "id": {"type": "string"},
+        "kind": {"enum": ["dataset", "vector", "raster"]},
+        "uri": {"type": ["string", "null"]},
+        "label": {"type": ["string", "null"]}
+      }
+    },
+    "evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["key", "value", "certainty"],
+      "properties": {
+        "key": {"type": "string"},
+        "value": {},
+        "origin": {"type": ["string", "null"]},
+        "certainty": {"enum": ["deterministic", "inferred", "heuristic"]}
+      }
+    },
+    "suggestion": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["action", "safety"],
+      "properties": {
+        "action": {"type": "string"},
+        "safety": {"enum": ["none", "safe", "review_required", "destructive"]},
+        "detail": {"type": ["string", "null"]}
+      }
+    },
+    "diagnostic": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["fingerprint", "rule_id", "severity", "certainty", "subject_ids", "message", "evidence"],
+      "properties": {
+        "fingerprint": {"type": "string"},
+        "rule_id": {"type": "string", "pattern": "^GEO[0-9]{3}$"},
+        "severity": {"enum": ["error", "warning", "note"]},
+        "certainty": {"enum": ["deterministic", "inferred", "heuristic"]},
+        "subject_ids": {"type": "array", "items": {"type": "string"}},
+        "message": {"type": "string"},
+        "evidence": {"type": "array", "items": {"$ref": "#/$defs/evidence"}},
+        "implication": {"type": ["string", "null"]},
+        "suggestion": {"anyOf": [{"$ref": "#/$defs/suggestion"}, {"type": "null"}]}
+      }
+    },
+    "summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["errors", "warnings", "notes", "passed_rules", "unknown_rules", "not_applicable_rules"],
+      "properties": {
+        "errors": {"type": "integer", "minimum": 0},
+        "warnings": {"type": "integer", "minimum": 0},
+        "notes": {"type": "integer", "minimum": 0},
+        "passed_rules": {"type": "integer", "minimum": 0},
+        "unknown_rules": {"type": "integer", "minimum": 0},
+        "not_applicable_rules": {"type": "integer", "minimum": 0}
+      }
+    }
+  }
+}
