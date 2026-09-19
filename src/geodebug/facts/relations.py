@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import math
 
-from pyproj import CRS, Transformer
+import pyproj
 from pyproj.exceptions import CRSError, ProjError
 
 from geodebug.facts.keys import (
@@ -127,7 +127,7 @@ def _grid_relation(
         return _unknown_grid(provenance)
 
     try:
-        if CRS.from_wkt(left_wkt) != CRS.from_wkt(right_wkt):
+        if pyproj.CRS.from_wkt(left_wkt) != pyproj.CRS.from_wkt(right_wkt):
             return _unknown_grid(provenance)
     except CRSError:
         return _unknown_grid(provenance)
@@ -167,11 +167,11 @@ def _grid_relation(
 
 def _transform_bounds(bounds: Bounds, source_wkt: str, target_wkt: str) -> Bounds | None:
     try:
-        source = CRS.from_wkt(source_wkt)
-        target = CRS.from_wkt(target_wkt)
+        source = pyproj.CRS.from_wkt(source_wkt)
+        target = pyproj.CRS.from_wkt(target_wkt)
         if source == target:
             return bounds
-        transformer = Transformer.from_crs(source, target, always_xy=True)
+        transformer = pyproj.Transformer.from_crs(source, target, always_xy=True)
         transformed = transformer.transform_bounds(*bounds, densify_pts=21)
     except (CRSError, ProjError, ValueError):
         return None
