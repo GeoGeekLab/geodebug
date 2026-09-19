@@ -4,7 +4,6 @@ import math
 
 import pyproj
 
-
 Bounds = tuple[float, float, float, float]
 
 

@@ -39,5 +39,8 @@ class PlanarAreaOnGeographicCRSRule:
             state=RuleState.FAIL,
             message="Planar area is being evaluated in a geographic CRS.",
             evidence=evidence,
-            implication="The resulting area is expressed in angular-coordinate units, not square metres.",
+            implication=(
+                "The resulting area is expressed in angular-coordinate units, "
+                "not square metres."
+            ),
         )

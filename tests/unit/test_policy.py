@@ -11,7 +11,6 @@ from geodebug.models.facts import FactStore
 from geodebug.models.subjects import DatasetSnapshot, SubjectRef
 from geodebug.rules.base import RuleSpec
 
-
 SPEC = RuleSpec(
     id="GEO999",
     name="test-rule",

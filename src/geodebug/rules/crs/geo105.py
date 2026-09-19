@@ -77,7 +77,8 @@ class CRSAreaOfUseRule:
             message="Dataset lies outside the declared CRS area of use.",
             evidence=tuple(evidence),
             implication=(
-                "The CRS may be inappropriate for this dataset or the CRS metadata may be incorrect."
+                "The CRS may be inappropriate for this dataset or the CRS metadata "
+                "may be incorrect."
             ),
         )
 

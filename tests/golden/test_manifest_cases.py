@@ -6,7 +6,6 @@ import pytest
 
 from geodebug import check
 
-
 MANIFEST = Path(__file__).with_name("cases.toml")
 
 

@@ -1,9 +1,9 @@
 from __future__ import annotations
 
+from collections.abc import Mapping
 from dataclasses import dataclass, field
 from fnmatch import fnmatchcase
 from types import MappingProxyType
-from typing import Mapping
 
 from geodebug.models.context import EvaluationContext
 from geodebug.models.enums import Severity
