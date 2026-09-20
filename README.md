@@ -116,6 +116,12 @@ Want the bugs, not the architecture?
 
 [Run five small failures that still produce valid-looking pipeline output.](examples/geospatial-bugs/)
 
+<p align="center">
+  <a href="examples/geospatial-bugs/03-half-pixel-shift/">
+    <img src="assets/half-pixel-shift.svg" alt="Two 10 meter rasters with identical values but a five meter half-pixel grid offset" width="100%">
+  </a>
+</p>
+
 Each case builds its own local fixture, runs the bad workflow, and is exercised in CI.
 
 ## Mental model

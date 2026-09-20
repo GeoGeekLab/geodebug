@@ -9,6 +9,10 @@ That is half a pixel.
 
 A NumPy subtraction happily reports a perfect match because it only sees array indexes.
 
+<p align="center">
+  <img src="../../../assets/half-pixel-shift.svg" alt="Two 10 meter rasters with identical values but a five meter half-pixel grid offset" width="100%">
+</p>
+
 ## Run it
 
 ```bash
