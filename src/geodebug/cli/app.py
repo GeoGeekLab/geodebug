@@ -1,8 +1,10 @@
 from __future__ import annotations
 
 from enum import StrEnum
+import json
 from importlib.resources import files
 from pathlib import Path
+from tempfile import TemporaryDirectory
 from typing import Annotated
 
 import typer
@@ -58,6 +60,47 @@ def root(
     ] = False,
 ) -> None:
     """Deterministic diagnostics for geospatial data and workflows."""
+
+
+@app.command("demo")
+def demo_command() -> None:
+    """Run a built-in geospatial correctness failure."""
+    payload = {
+        "type": "FeatureCollection",
+        "features": [
+            {
+                "type": "Feature",
+                "properties": {
+                    "road_id": "tokyo-station-east",
+                    "status": "closed",
+                },
+                "geometry": {
+                    "type": "LineString",
+                    "coordinates": [
+                        [139.7667, 35.6808],
+                        [139.7681, 35.6817],
+                    ],
+                },
+            }
+        ],
+    }
+
+    console.print("[bold]Demo:[/bold] 500 m road buffer on GeoJSON lon/lat coordinates")
+    console.print("The file is valid. The operation is plausible. The units are wrong.\n")
+
+    with TemporaryDirectory(prefix="geodebug-demo-") as directory:
+        path = Path(directory) / "road_segment.geojson"
+        path.write_text(json.dumps(payload), encoding="utf-8")
+        report = preflight_target(
+            path,
+            operation="buffer",
+            parameters={"distance": 500},
+        )
+        print_report(report, console=console)
+
+    console.print("\n[bold]Try it on your data:[/bold]")
+    console.print("  geodebug check data.geojson")
+    console.print("  geodebug preflight data.geojson --operation buffer --distance 500")
 
 
 @app.command("inspect")

@@ -7,6 +7,15 @@ from geodebug.cli.app import app
 runner = CliRunner()
 
 
+
+def test_demo_shows_geo501_and_exits_zero() -> None:
+    result = runner.invoke(app, ["demo"])
+
+    assert result.exit_code == 0
+    assert "500 m road buffer" in result.stdout
+    assert "GEO501" in result.stdout
+    assert "Try it on your data" in result.stdout
+
 def test_schema_command_emits_canonical_schema() -> None:
     result = runner.invoke(app, ["schema"])
 

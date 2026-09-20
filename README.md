@@ -63,10 +63,11 @@ ERROR GEO501  Buffer distance is interpreted in angular coordinate units.
 
 **The code can be valid while the geography is not.**
 
-Install:
+Install and see one failure immediately:
 
 ```bash
 pip install geodebug
+geodebug demo
 ```
 
 Then check a dataset or preflight an operation:
@@ -148,6 +149,7 @@ Adapters observe. Rules diagnose. Policy decides what fails the build.
 
 | Command | Purpose |
 | --- | --- |
+| `geodebug demo` | Run a built-in 500 m buffer failure |
 | `geodebug inspect DATA` | Show normalized spatial facts without diagnosing |
 | `geodebug check DATA` | Run dataset diagnostics |
 | `geodebug compare A B` | Run dataset + relational diagnostics |
@@ -171,6 +173,7 @@ geodebug check roads.geojson --format json
 
 ```bash
 pip install geodebug
+geodebug demo
 ```
 
 Need every adapter:
