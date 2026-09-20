@@ -4,6 +4,12 @@ on:
   push:
     tags:
       - "v*"
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version to publish, e.g. 0.1.1"
+        required: true
+        type: string
 
 permissions:
   contents: read
@@ -15,43 +21,77 @@ jobs:
       contents: write
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+
+      - name: Resolve release
+        id: release
+        shell: bash
+        env:
+          INPUT_VERSION: ${{ inputs.version }}
+        run: |
+          if [[ "${GITHUB_EVENT_NAME}" == "workflow_dispatch" ]]; then
+            VERSION="${INPUT_VERSION#v}"
+            TAG="v${VERSION}"
+          else
+            TAG="${GITHUB_REF_NAME}"
+            VERSION="${TAG#v}"
+          fi
+
+          echo "version=${VERSION}" >> "${GITHUB_OUTPUT}"
+          echo "tag=${TAG}" >> "${GITHUB_OUTPUT}"
+
       - name: Install build tooling
         run: python -m pip install build twine
-      - name: Verify tag matches package version
+
+      - name: Verify release version
+        env:
+          RELEASE_VERSION: ${{ steps.release.outputs.version }}
         run: |
-          VERSION="$(python - <<'PY'
+          python - <<'PY'
           from pathlib import Path
+          import os
           import re
 
           text = Path("src/geodebug/version.py").read_text()
           match = re.search(r'__version__ = "([^"]+)"', text)
           if match is None:
               raise SystemExit("package version not found")
-          print(match.group(1))
+
+          package_version = match.group(1)
+          release_version = os.environ["RELEASE_VERSION"]
+
+          if package_version != release_version:
+              raise SystemExit(
+                  f"release version {release_version} != package version {package_version}"
+              )
           PY
-          )"
-          test "${GITHUB_REF_NAME}" = "v${VERSION}"
+
       - name: Build distributions
         run: python -m build
+
       - name: Validate distributions
         run: python -m twine check dist/*
+
       - name: Upload distributions for PyPI
         uses: actions/upload-artifact@v4
         with:
           name: python-package-distributions
           path: dist/
           if-no-files-found: error
+
       - name: Extract release notes
+        env:
+          RELEASE_VERSION: ${{ steps.release.outputs.version }}
         run: |
           python - <<'PY'
           from pathlib import Path
-          import re
           import os
+          import re
 
-          version = os.environ["GITHUB_REF_NAME"].removeprefix("v")
+          version = os.environ["RELEASE_VERSION"]
           text = Path("CHANGELOG.md").read_text()
           match = re.search(
               rf"^## {re.escape(version)}[^\n]*\n(?P<body>.*?)(?=^## |\Z)",
@@ -60,14 +100,23 @@ jobs:
           )
           if match is None:
               raise SystemExit(f"CHANGELOG entry not found for {version}")
+
           Path("/tmp/release-notes.md").write_text(
               f"## GeoDebug {version}\n\n" + match.group("body").strip() + "\n"
           )
           PY
+
       - name: Create GitHub release
+        shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh release create "${GITHUB_REF_NAME}" dist/* --notes-file /tmp/release-notes.md --verify-tag
+          RELEASE_TAG: ${{ steps.release.outputs.tag }}
+        run: |
+          if [[ "${GITHUB_EVENT_NAME}" == "workflow_dispatch" ]]; then
+            gh release create "${RELEASE_TAG}" dist/*               --target "${GITHUB_SHA}"               --notes-file /tmp/release-notes.md
+          else
+            gh release create "${RELEASE_TAG}" dist/*               --notes-file /tmp/release-notes.md               --verify-tag
+          fi
 
   publish-pypi:
     name: Publish to PyPI
@@ -84,5 +133,6 @@ jobs:
         with:
           name: python-package-distributions
           path: dist/
+
       - name: Publish distributions with trusted publishing
         uses: pypa/gh-action-pypi-publish@release/v1
