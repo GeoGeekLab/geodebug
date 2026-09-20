@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-from enum import StrEnum
 import json
+from enum import StrEnum
 from importlib.resources import files
 from pathlib import Path
 from tempfile import TemporaryDirectory
