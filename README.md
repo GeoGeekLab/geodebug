@@ -116,6 +116,7 @@ That distinction is the point.
 Want the bugs, not the architecture?
 
 [Run five small failures that still produce valid-looking pipeline output.](examples/geospatial-bugs/)
+Read the field notes: [5 Geospatial Bugs That Valid Data and Passing Tests Won't Catch](docs/5-geospatial-bugs.md).
 
 <p align="center">
   <a href="examples/geospatial-bugs/03-half-pixel-shift/">
