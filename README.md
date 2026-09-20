@@ -12,7 +12,7 @@ Geospatial correctness checks for data and workflows.
 [![Python](https://img.shields.io/badge/python-3.12%2B-3776AB?style=flat-square&logo=python&logoColor=white)](https://www.python.org/)
 [![Typed](https://img.shields.io/badge/typing-strict-2F81F7?style=flat-square)](pyproject.toml)
 
-[Architecture](docs/architecture.md) · [Rule catalog](docs/rules.md) · [Contributing](CONTRIBUTING.md) · [Security](SECURITY.md) · [Changelog](CHANGELOG.md) · [Releases](https://github.com/GeoGeekLab/geodebug/releases)
+[Architecture](docs/architecture.md) · [Rule catalog](docs/rules.md) · [Failure cases](examples/geospatial-bugs/) · [Contributing](CONTRIBUTING.md) · [Security](SECURITY.md) · [Changelog](CHANGELOG.md) · [Releases](https://github.com/GeoGeekLab/geodebug/releases)
 
 </div>
 
@@ -109,6 +109,14 @@ GeoDebug is built for bugs that ordinary syntax checks and file validators often
 
 A file can be valid in isolation and still be wrong **for the operation you are about to run**.
 That distinction is the point.
+
+## Failure cases
+
+Want the bugs, not the architecture?
+
+[Run five small failures that still produce valid-looking pipeline output.](examples/geospatial-bugs/)
+
+Each case builds its own local fixture, runs the bad workflow, and is exercised in CI.
 
 ## Mental model
 
