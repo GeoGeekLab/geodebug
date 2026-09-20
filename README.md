@@ -7,12 +7,12 @@
 Geospatial correctness checks for data and workflows.
 
 [![CI](https://github.com/GeoGeekLab/geodebug/actions/workflows/ci.yml/badge.svg)](https://github.com/GeoGeekLab/geodebug/actions/workflows/ci.yml)
-[![Version](https://img.shields.io/badge/version-0.1.0-2F81F7?style=flat-square)](https://github.com/GeoGeekLab/geodebug/releases/tag/v0.1.0)
+[![Release](https://img.shields.io/github/v/release/GeoGeekLab/geodebug?display_name=tag&sort=semver&style=flat-square)](https://github.com/GeoGeekLab/geodebug/releases/latest)
 [![License: MIT](https://img.shields.io/badge/license-MIT-2ea44f?style=flat-square)](LICENSE)
 [![Python](https://img.shields.io/badge/python-3.12%2B-3776AB?style=flat-square&logo=python&logoColor=white)](https://www.python.org/)
 [![Typed](https://img.shields.io/badge/typing-strict-2F81F7?style=flat-square)](pyproject.toml)
 
-[Architecture](docs/architecture.md) · [Rule catalog](docs/rules.md) · [Contributing](CONTRIBUTING.md) · [Security](SECURITY.md) · [Changelog](CHANGELOG.md) · [v0.1.0](https://github.com/GeoGeekLab/geodebug/releases/tag/v0.1.0)
+[Architecture](docs/architecture.md) · [Rule catalog](docs/rules.md) · [Contributing](CONTRIBUTING.md) · [Security](SECURITY.md) · [Changelog](CHANGELOG.md) · [Releases](https://github.com/GeoGeekLab/geodebug/releases)
 
 </div>
 
@@ -63,10 +63,10 @@ ERROR GEO501  Buffer distance is interpreted in angular coordinate units.
 
 **The code can be valid while the geography is not.**
 
-Install the current release:
+Install:
 
 ```bash
-pip install "geodebug @ git+https://github.com/GeoGeekLab/geodebug.git@v0.1.0"
+pip install geodebug
 ```
 
 Then check a dataset or preflight an operation:
@@ -128,7 +128,7 @@ Three questions drive the engine:
 2. **Relation** — are these datasets compatible with each other?
 3. **Operation** — is this operation semantically valid for these coordinates and units?
 
-Adapters observe. Rules diagnose. Policy filters presentation. Those boundaries are deliberate.
+Adapters observe. Rules diagnose. Policy decides what fails the build.
 
 ## CLI
 
@@ -155,24 +155,13 @@ geodebug check roads.geojson --format json
 
 ## Install
 
-Repository-side PyPI Trusted Publishing is now configured. Until the one-time PyPI publisher
-approval is completed and the first registry release is published, install GeoDebug `0.1.0`
-from its signed release tag:
-
-```bash
-pip install "geodebug @ git+https://github.com/GeoGeekLab/geodebug.git@v0.1.0"
-```
-
-For the full adapter set:
-
-```bash
-pip install "geodebug[all] @ git+https://github.com/GeoGeekLab/geodebug.git@v0.1.0"
-```
-
-After the first PyPI publication, the canonical installs become:
-
 ```bash
 pip install geodebug
+```
+
+Need every adapter:
+
+```bash
 pip install "geodebug[all]"
 ```
 
@@ -191,7 +180,7 @@ Requires Python **3.12+**.
 
 ## Diagnostic corpus
 
-GeoDebug `0.1.0` ships 11 built-in rules with stable IDs.
+GeoDebug ships 11 built-in rules with stable IDs.
 
 | Family | Rules |
 | --- | --- |
@@ -282,11 +271,11 @@ The release gate checks more than unit tests: four-state rule contracts, golden
 tests, and installation from a freshly built wheel.
 
 See [Architecture](docs/architecture.md), [Diagnostic rules](docs/rules.md), and
-[Releasing](docs/releasing.md) for the deeper contracts.
+[Releasing](docs/releasing.md) for the internals.
 
 ## Contributing
 
-Contributions should start from a concrete geospatial failure mode or a clearly bounded
+Contributions should start from a concrete geospatial failure mode or a concrete
 engineering improvement. New diagnostics must preserve the four-state rule contract and include
 false-positive coverage where adjacent rules can cascade.
 

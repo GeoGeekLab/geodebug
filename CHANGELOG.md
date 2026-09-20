@@ -2,6 +2,15 @@
 
 All notable changes to GeoDebug are documented here.
 
+## 0.1.1 - 2026-09-20
+
+### Changed
+
+- Publish releases to PyPI from GitHub Actions with Trusted Publishing.
+- Rework the README front door around geospatial correctness and a failing buffer example.
+- Tighten package metadata for PyPI search and discovery.
+- Make `pip install geodebug` the default install path.
+
 ## 0.1.0 - 2026-09-19
 
 ### Added

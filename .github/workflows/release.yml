@@ -44,10 +44,30 @@ jobs:
           name: python-package-distributions
           path: dist/
           if-no-files-found: error
+      - name: Extract release notes
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+          import os
+
+          version = os.environ["GITHUB_REF_NAME"].removeprefix("v")
+          text = Path("CHANGELOG.md").read_text()
+          match = re.search(
+              rf"^## {re.escape(version)}[^\n]*\n(?P<body>.*?)(?=^## |\Z)",
+              text,
+              re.MULTILINE | re.DOTALL,
+          )
+          if match is None:
+              raise SystemExit(f"CHANGELOG entry not found for {version}")
+          Path("/tmp/release-notes.md").write_text(
+              f"## GeoDebug {version}\n\n" + match.group("body").strip() + "\n"
+          )
+          PY
       - name: Create GitHub release
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh release create "${GITHUB_REF_NAME}" dist/* --generate-notes --verify-tag
+        run: gh release create "${GITHUB_REF_NAME}" dist/* --notes-file /tmp/release-notes.md --verify-tag
 
   publish-pypi:
     name: Publish to PyPI
