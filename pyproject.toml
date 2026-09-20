@@ -5,8 +5,8 @@ build-backend = "hatchling.build"
 [project]
 name = "geodebug"
 dynamic = ["version"]
-description = "Deterministic diagnostics for geospatial data and workflows."
-keywords = ["gis", "geospatial", "crs", "raster", "vector", "diagnostics"]
+description = "Deterministic geospatial correctness checks for data and workflows."
+keywords = ["gis", "geospatial", "crs", "raster", "vector", "diagnostics", "data-quality", "validation", "spatial-data"]
 readme = "README.md"
 license = "MIT"
 license-files = ["LICENSE"]
