@@ -4,10 +4,10 @@
 
 **Find the geographic bug, not just the code bug.**
 
-Deterministic diagnostics for geospatial data and workflows.
+Geospatial correctness checks for data and workflows.
 
 [![CI](https://github.com/GeoGeekLab/geodebug/actions/workflows/ci.yml/badge.svg)](https://github.com/GeoGeekLab/geodebug/actions/workflows/ci.yml)
-[![Release](https://img.shields.io/github/v/release/GeoGeekLab/geodebug?display_name=tag&sort=semver&style=flat-square)](https://github.com/GeoGeekLab/geodebug/releases/latest)
+[![Version](https://img.shields.io/badge/version-0.1.0-2F81F7?style=flat-square)](https://github.com/GeoGeekLab/geodebug/releases/tag/v0.1.0)
 [![License: MIT](https://img.shields.io/badge/license-MIT-2ea44f?style=flat-square)](LICENSE)
 [![Python](https://img.shields.io/badge/python-3.12%2B-3776AB?style=flat-square&logo=python&logoColor=white)](https://www.python.org/)
 [![Typed](https://img.shields.io/badge/typing-strict-2F81F7?style=flat-square)](pyproject.toml)
@@ -18,13 +18,76 @@ Deterministic diagnostics for geospatial data and workflows.
 
 ---
 
-GDAL can open it. Python can run it. A geometry can be valid.
+Your file opens. Your geometry is valid. Your tests pass.
 
-**The workflow can still be geographically wrong.**
+**Your result can still be geographically wrong.**
 
-GeoDebug is a deterministic diagnostic engine for spatial correctness. It turns CRS semantics,
-geometry state, raster grid structure, cross-dataset relationships, and operation context into
-stable `GEOxxx` diagnostics with explicit evidence.
+```text
+✓ file readable
+✓ geometry valid
+✓ pipeline completed
+✓ tests passed
+? geographically correct
+```
+
+GeoDebug checks the last question. It catches spatial-semantic failures that ordinary software
+tests and file validators can miss: CRS misuse, impossible coordinates, raster-grid
+misalignment, cross-dataset incompatibility, NoData/mask conflicts, and operations whose units
+do not mean what the code assumes.
+
+## See the gap
+
+This workflow can run without raising a Python exception:
+
+```python
+roads = gpd.read_file("roads.geojson")
+buffered = roads.buffer(500)
+buffered.to_file("roads_buffer.geojson")
+```
+
+But if the data uses a geographic CRS, `500` is interpreted in angular coordinate units rather
+than meters.
+
+GeoDebug makes that failure explicit before the operation becomes a result:
+
+```console
+$ geodebug preflight roads.geojson --operation buffer --distance 500
+
+roads.geojson
+ERROR GEO501  Buffer distance is interpreted in angular coordinate units.
+  crs.kind: geographic
+  crs.axis_units: degree, degree
+  operation.distance: 500
+1 error(s) · 0 warning(s) · 0 note(s) · 1 unknown
+```
+
+**The code can be valid while the geography is not.**
+
+Install the current release:
+
+```bash
+pip install "geodebug @ git+https://github.com/GeoGeekLab/geodebug.git@v0.1.0"
+```
+
+Then check a dataset or preflight an operation:
+
+```bash
+geodebug check roads.geojson
+geodebug preflight roads.geojson --operation buffer --distance 500
+```
+
+## Where GeoDebug fits
+
+| Layer | Question |
+| --- | --- |
+| Parser / schema | Can the data be read and interpreted structurally? |
+| Geometry validity | Is the geometry structurally valid? |
+| Software tests | Does the program behave as specified? |
+| **GeoDebug** | **Does the data or operation make geographic sense?** |
+
+GeoDebug does not replace GDAL, GeoPandas, Shapely, Rasterio, or PyProj. It turns spatial facts
+exposed by the geospatial stack into a systematic, deterministic **geospatial correctness**
+layer with stable diagnostics that can run locally or in CI.
 
 No LLM in the core. No silent CRS guessing. No automatic "fix everything."
 
@@ -46,22 +109,6 @@ GeoDebug is built for bugs that ordinary syntax checks and file validators often
 
 A file can be valid in isolation and still be wrong **for the operation you are about to run**.
 That distinction is the point.
-
-## See it fail
-
-```console
-$ geodebug preflight roads.geojson --operation buffer --distance 500
-
-roads.geojson
-ERROR GEO501  Buffer distance is interpreted in angular coordinate units.
-  crs.kind: geographic
-  crs.axis_units: degree, degree
-  operation.distance: 500
-1 error(s) · 0 warning(s) · 0 note(s) · 1 unknown
-```
-
-The rule is not guessing from code text. GeoDebug inspects the dataset, normalizes spatial facts,
-then evaluates the operation against those facts.
 
 ## Mental model
 
@@ -108,7 +155,9 @@ geodebug check roads.geojson --format json
 
 ## Install
 
-GeoDebug `0.1.0` is distributed from the GitHub release/tag. PyPI publication is not enabled yet.
+Repository-side PyPI Trusted Publishing is now configured. Until the one-time PyPI publisher
+approval is completed and the first registry release is published, install GeoDebug `0.1.0`
+from its signed release tag:
 
 ```bash
 pip install "geodebug @ git+https://github.com/GeoGeekLab/geodebug.git@v0.1.0"
@@ -118,6 +167,13 @@ For the full adapter set:
 
 ```bash
 pip install "geodebug[all] @ git+https://github.com/GeoGeekLab/geodebug.git@v0.1.0"
+```
+
+After the first PyPI publication, the canonical installs become:
+
+```bash
+pip install geodebug
+pip install "geodebug[all]"
 ```
 
 Optional extras keep the core small:
