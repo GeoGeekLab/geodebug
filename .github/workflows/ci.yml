@@ -64,6 +64,8 @@ jobs:
           .wheel-smoke/bin/python -m pip install --upgrade pip
           .wheel-smoke/bin/python -m pip install dist/*.whl
           .wheel-smoke/bin/geodebug --version
+          .wheel-smoke/bin/geodebug demo > /tmp/demo.txt
+          grep -q "GEO501" /tmp/demo.txt
           .wheel-smoke/bin/geodebug schema > /tmp/report.schema.json
           .wheel-smoke/bin/geodebug schema --kind config > /tmp/config.schema.json
           .wheel-smoke/bin/python - <<'PY'

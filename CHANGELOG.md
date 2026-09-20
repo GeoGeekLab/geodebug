@@ -2,6 +2,20 @@
 
 All notable changes to GeoDebug are documented here.
 
+## 0.1.2 - 2026-09-20
+
+### Added
+
+- Add `geodebug demo` for a zero-setup GEO501 buffer failure.
+- Add five runnable geospatial failure cases for CRS, grid alignment, dataset overlap,
+  and NoData/mask semantics.
+- Add a half-pixel raster shift visual for GEO404.
+
+### Changed
+
+- Exercise the failure cases in integration CI.
+- Smoke-test `geodebug demo` from the built wheel before release.
+
 ## 0.1.1 - 2026-09-20
 
 ### Changed
