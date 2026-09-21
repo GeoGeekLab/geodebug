@@ -4,6 +4,8 @@
 
 **Find the geographic bug, not just the code bug.**
 
+*GeoDebug：不让 Codex 在 GIS 上裸奔*
+
 Geospatial correctness checks for data and workflows.
 
 [![CI](https://github.com/GeoGeekLab/geodebug/actions/workflows/ci.yml/badge.svg)](https://github.com/GeoGeekLab/geodebug/actions/workflows/ci.yml)
