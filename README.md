@@ -319,10 +319,4 @@ See [SECURITY.md](SECURITY.md).
 
 ---
 
-<div align="center">
-
-**Geo to see. Geek to build.**
-
-GeoGeekLab
-
-</div>
+**“The truth is out there... but make sure your CRS is right first.”**
