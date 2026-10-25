@@ -16,7 +16,7 @@ Geospatial correctness checks for data and workflows.
 
 [Architecture](docs/architecture.md) · [Rule catalog](docs/rules.md) · [Failure cases](examples/geospatial-bugs/) · [Contributing](CONTRIBUTING.md) · [Security](SECURITY.md) · [Changelog](CHANGELOG.md) · [Releases](https://github.com/GeoGeekLab/geodebug/releases)
 
-<img src="assets/geomole.png" alt="GeoMole, the GeoDebug mascot inspecting a half-pixel raster grid offset" width="400">
+<img src="https://raw.githubusercontent.com/GeoGeekLab/geogeeklab-visual-identity/main/readme-artwork/v3/geodebug/readme-artwork.webp" alt="GeoMole, the GeoDebug mascot inspecting a half-pixel raster grid offset" width="400">
 
 <sub><strong>GeoMole</strong> · small offsets, big bugs.</sub>
 
