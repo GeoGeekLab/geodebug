@@ -21,6 +21,9 @@ Geospatial correctness checks for data and workflows.
 <sub><strong>GeoMole</strong> · small offsets, big bugs.</sub>
 
 </div>
+<!-- GeoGeekLab VIS: existing mascot / canonical illustration retained -->
+<p align="center"><sub><a href="https://github.com/GeoGeekLab/geogeeklab-visual-identity/blob/main/identity-sheets/geodebug.md">GeoMole identity system ↗</a></sub></p>
+
 
 ---
 
